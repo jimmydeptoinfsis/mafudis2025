@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Tipos de Unidad</title>
+    <!-- Assuming Bootstrap is used, similar to ClasificacionUnidad -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 th:text="${pageTitle}">Tipos de Unidad</h1>
+
+    <div class="mb-3">
+        <a th:href="@{/tipos-unidad/new}" class="btn btn-primary">Agregar Tipo de Unidad</a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="tipoUnidad : ${tiposUnidad}">
+            <td th:text="${tipoUnidad.nombre}"></td>
+            <td>
+                <a th:href="@{/tipos-unidad/edit/{id}(id=${tipoUnidad.id})}" class="btn btn-sm btn-warning">Editar</a>
+                <a th:href="@{/tipos-unidad/delete/{id}(id=${tipoUnidad.id})}"
+                   class="btn btn-sm btn-danger"
+                   onclick="return confirm('¿Estás seguro de eliminar este tipo de unidad?')">Eliminar</a>
+            </td>
+        </tr>
+        <tr th:if="${tiposUnidad.isEmpty()}">
+            <td colspan="2">No hay tipos de unidad registradas.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="sidebar">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h5 class="sidebar-title">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                Panel de Control
+            </h5>
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">Principal</div>
+                <div class="nav-item">
+                    <a href="/dashboard" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Gestión Académica</div>
+                <div class="nav-item">
+                    <a href="/tipos-unidad/list" class="nav-link">
+                        <i class="fas fa-tags"></i>
+                        <span>Tipos de Unidad</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="/unidades/list" class="nav-link">
+                        <i class="fas fa-building"></i>
+                        <span>Unidades</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="/facultades/list" class="nav-link">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Facultades</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="/carreras/list" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Carreras</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Usuarios</div>
+                <div class="nav-item">
+                    <a href="/usuarios/list" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Gestión de Usuarios</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="/roles/list" class="nav-link">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Roles y Permisos</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Configuración</div>
+                <div class="nav-item">
+                    <a href="/configuracion/general" class="nav-link">
+                        <i class="fas fa-cogs"></i>
+                        <span>Configuración General</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="/dashboardp" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reportes</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#" onclick="loadContent('/organigrama-fragment', 'Organigrama'); return false;">
+                        <i class="fas fa-sitemap"></i>
+                        <span>Organigrama</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </aside>
+</div>
+</body>
+</html>

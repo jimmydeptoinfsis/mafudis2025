@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!-- Head -->
+<head th:replace="~{base-layout :: head('Agregar/Modificar un ')}"></head>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+    }
+</style>
+<body>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br>
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-container mb-3">
+    <div th:replace="~{fragments/_breadcrumbs :: breadcrumbs}"></div>
+</div>
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span th:text="${objetivo.id == null ? 'Agregar nuevo objetivo de unidad: ' : 'Editar objetivo de unidad'}"></span>
+                    </div>
+                    <div class="card-body">
+
+                        <!--<h2 th:if="${objetivo.id} == null">Agregar Nuevo Objetivo</h2>
+                        <h2 th:unless="${objetivo.id} == null">Editar Objetivo</h2>-->
+
+                        <form th:action="${objetivo.id} == null ? @{/objetivos-unidad/adm/unidad/{unidadId}(unidadId=${unidad.id})} : @{/objetivos-unidad/adm/unidad/{unidadId}/edit/{id}(unidadId=${unidad.id},id=${objetivo.id})}" th:object="${objetivo}" method="post">
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label">Descripción:</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" th:field="*{descripcion}" rows="3" required></textarea>
+                                <div class="text-danger" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Guardar Objetivo</button>
+                            <a th:href="@{/objetivos-unidad/adm/unidad/{unidadId}(unidadId=${unidad.id})}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i> Cancelar</a>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

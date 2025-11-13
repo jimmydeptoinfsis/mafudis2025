@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Editar Clasificación de Unidad</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Editar Clasificación de Unidad para <span th:text="${unidad.nombreUnidad} ?: 'Sin nombre'"></span></h2>
+
+    <form th:action="@{/unidades/{id}/update-clasificacion(id=${unidad.id})}" method="post">
+        <div class="mb-3">
+            <label for="clasificacionUnidadId" class="form-label">Seleccionar Clasificación de Unidad:</label>
+            <select class="form-select" id="clasificacionUnidadId" name="clasificacionUnidadId" required>
+                <option value="">-- Seleccione una clasificacion --</option>
+                <option th:each="clasificacion : ${clasificacionesUnidad}"
+                        th:value="${clasificacion.id}"
+                        th:text="${clasificacion.nombre}"
+                        th:selected="${unidad.clasificacion != null && unidad.clasificacion.id == clasificacion.id}">
+                </option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a th:href="@{/unidades/details/{id}(id=${unidad.id})}" class="btn btn-secondary">Volver</a>
+    </form>
+</div>
+</body>
+</html>

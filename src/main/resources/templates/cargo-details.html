@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalles del Cargo</title>
+    <!-- Include OrgChart.js -->
+    <script src="/js/OrgChart.js"></script>
+    <!-- Include jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Include html2canvas for capturing the organigram -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .cargo-details {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .cargo-details h1 {
+            color: #87CEEB; /* Celeste */
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .cargo-details p {
+            margin: 10px 0;
+            color: #333;
+        }
+        .cargo-details p strong {
+            color: #555;
+        }
+        .back-link, .download-pdf {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #87CEEB;
+            margin-right: 20px;
+        }
+        .back-link:hover, .download-pdf:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .responsabilidades-section, .relaciones-section, .relaciones-externas-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .responsabilidades-section h2, .relaciones-section h2, .relaciones-externas-section h2 {
+            color: #555;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+        .responsabilidades-list, .relaciones-list, .relaciones-externas-list {
+            list-style: decimal;
+            padding-left: 20px;
+            margin: 0;
+        }
+        .responsabilidades-list li, .relaciones-list li, .relaciones-externas-list li {
+            margin-bottom: 8px;
+            color: #333;
+            line-height: 1.4;
+        }
+        .organigrama-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .organigrama-section h2 {
+            color: #555;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+        #organigrama-tree {
+            width: 100%;
+            height: 400px;
+            overflow: auto;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+<div class="cargo-details" id="cargoDetailsContent">
+    <h1 th:text="${cargo.name}">Nombre del Cargo</h1>
+    <p><strong>Cargo:</strong> <span th:text="${cargo.title}">Sin cargo</span></p>
+    <p><strong>Correo:</strong> <span th:text="${cargo.email}">Sin correo</span></p>
+    <p><strong>Teléfono:</strong> <span th:text="${cargo.phone}">Sin teléfono</span></p>
+    <p><strong>Descripción:</strong> <span th:text="${cargo.description}">Sin descripción</span></p>
+    <p><strong>Jefe/Superior:</strong> <span th:text="${superior}">Ninguno</span></p>
+    <p><strong>Cargos Dependientes:</strong> <span th:text="${dependientes}">Ninguno</span></p>
+    <p><strong>Etiquetas:</strong> <span th:text="${tags}">Ninguna</span></p>
+
+    <!-- Organigrama Section -->
+    <div class="organigrama-section">
+        <h2>Jerarquía del Cargo</h2>
+        <div id="organigrama-tree"></div>
+    </div>
+
+    <div class="responsabilidades-section">
+        <h2>Responsabilidades</h2>
+        <ul class="responsabilidades-list" th:if="${not #lists.isEmpty(responsabilidades)}">
+            <li th:each="resp : ${responsabilidades}" th:text="${resp.descripcion}">...</li>
+        </ul>
+        <p th:if="${#lists.isEmpty(responsabilidades)}">No hay responsabilidades asignadas.</p>
+    </div>
+
+    <div class="relaciones-section">
+        <h2>Relaciones Internas</h2>
+        <ul class="relaciones-list" th:if="${not #lists.isEmpty(relacionesInternas)}">
+            <li th:each="rel : ${relacionesInternas}">
+                <span th:text="${rel.origen.name} + ' -> ' + ${rel.destino.name} + ' (' + ${rel.tipoRelacion} + ')'"></span>
+            </li>
+        </ul>
+        <p th:if="${#lists.isEmpty(relacionesInternas)}">No tiene relaciones internas definidas.</p>
+    </div>
+
+    <div class="relaciones-externas-section">
+        <h2>Relaciones Externas</h2>
+        <ul class="relaciones-externas-list" th:if="${not #lists.isEmpty(relacionesExternas)}">
+            <li th:each="rel : ${relacionesExternas}" th:text="${rel.nombre}">...</li>
+        </ul>
+        <p th:if="${#lists.isEmpty(relacionesExternas)}">No tiene relaciones externas definidas.</p>
+    </div>
+    <div class="funciones-actividades-section">
+        <h2>Funciones y Actividades</h2>
+        <ul class="funciones-actividades-list" th:if="${not #lists.isEmpty(funcionesActividades)}">
+            <li th:each="func : ${funcionesActividades}" th:text="${func.descripcion}">...</li>
+        </ul>
+        <p th:if="${#lists.isEmpty(funcionesActividades)}">No hay funciones o actividades asignadas.</p>
+    </div>
+    <div class="documentos-generados-section">
+    <!-- Documentos Generados -->
+    <h2>Documentos Generados</h2>
+    <ul>
+        <li th:each="doc : ${documentosGenera}" th:text="${doc.descripcion}">Descripción del documento</li>
+        <li th:if="${documentosGenera.isEmpty()}" class="empty">No hay documentos asignados.</li>
+    </ul>
+    </div>
+    <div class="perfiles-contratacion-section">
+    <h2>Perfil de contratación</h2>
+    <ul>
+        <li th:each="per : ${perfilesContratacion}" th:text="${per.descripcion}">Descripción del perfil de contratación</li>
+        <li th:if="${perfilesContratacion.isEmpty()}" class="empty">No hay items en el perfil de contratación.</li>
+    </ul>
+    </div>
+    <div class="otros-conocimientos-section">
+        <h2>Grado Académico Mínimo</h2>
+        <ul>
+            <li th:each="grado : ${gradosAcademicos}" th:text="${grado.descripcion}">Descripción del grado académico</li>
+            <li th:if="${gradosAcademicos.isEmpty()}" class="empty">No hay grado académico asignado.</li>
+        </ul>
+    </div>
+    <div class="otros-conocimientos-section">
+        <h2>Otros Conocimientos Recomendables</h2>
+        <ul>
+            <li th:each="conocimiento : ${otrosConocimientos}" th:text="${conocimiento.descripcion}">Descripción del conocimiento</li>
+            <li th:if="${otrosConocimientos.isEmpty()}" class="empty">No hay conocimientos asignados.</li>
+        </ul>
+    </div>
+    <div class="habilidades-destrezas-section">
+        <h2>Habilidades y destrezas</h2>
+        <ul>
+            <li th:each="habilidad : ${habilidadesDestrezas}" th:text="${habilidad.descripcion}">Descripción de la habilidad</li>
+            <li th:if="${habilidadesDestrezas.isEmpty()}" class="empty">No hay habilidades/destrezas asignadas.</li>
+        </ul>
+    </div>
+
+    <a th:href="@{/organigrama1}" class="back-link">Volver al Organigrama</a>
+    <a class="download-pdf" onclick="generatePDF()">Descargar PDF</a>
+    <a th:href="@{/responsabilidades/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar Responsabilidades</a>
+    <a th:href="@{/relaciones-internas}" class="back-link">Administrar Relaciones Internas (CRUD de tabla Relaciones Internas)</a>
+    <a th:href="@{/relaciones-internas/new}" class="back-link">Gestionar Relaciones Internas (nueva relacion para elegir ambos cargos)</a>
+    <a th:href="@{/relaciones-internas/new/origen/{id}(id=${cargo.id})}" class="back-link">Gestionar Relaciones Internas para el cargo</a>
+    <a th:href="@{/relaciones-internas/list/{id}(id=${cargo.id})}" class="back-link">Gestionar CRUD Relaciones Internas para el cargo</a>
+    <a th:href="@{/relaciones-externas}" class="back-link">Administrar Relaciones Externas (CRUD de tabla Relaciones Externas)</a>
+    <a th:href="@{/cargos/{cargoId}/relaciones-externas(cargoId=${cargo.id})}" class="back-link">Gestionar Relaciones Externas</a>
+    <a th:href="@{/funciones-actividades/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar Funciones y/o Actividades</a>
+    <a th:href="@{/documentos-genera/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar Documentos que genera</a>
+    <a th:href="@{/perfil-contratacion/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar perfil de contrataciones</a>
+    <a th:href="@{/habilidades-destrezas/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar habilidades y destrezas</a>
+    <a th:href="@{/grado-academico-minimo/cargo/{id}(id=${cargo.id})}" class="back-link">Gestionar Grados Académicos Mínimos</a>
+
+</div>
+
+<script th:inline="javascript">
+    const cargoData = /*[[${cargo}]]*/ {};
+    const responsabilidadesData = /*[[${responsabilidades}]]*/ [];
+    const relacionesInternasData = /*[[${relacionesInternas}]]*/ [];
+    const relacionesExternasData = /*[[${relacionesExternas}]]*/ [];
+    const funcionesActividadesData = /*[[${funcionesActividades}]]*/ [];
+    const documentosGeneraData = /*[[${documentosGenera}]]*/ [];
+    const perfilesContratacionData = /*[[${perfilesContratacion}]]*/ [];
+    const otrosConocimientosData = /*[[${otrosConocimientos}]]*/ [];
+    const habilidadesDestrezasData = /*[[${habilidadesDestrezas}]]*/ [];
+    const gradoAcademicoMinimoData = /*[[${gradosAcademicos}]]*/ [];
+    const hierarchyCargos = /*[[${hierarchyCargos}]]*/ [];
+
+
+    window.onload = function () {
+        // Configure OrgChart for the hierarchy
+        if (hierarchyCargos && hierarchyCargos.length > 0) {
+            OrgChart.templates.assistantTemplate = Object.assign({}, OrgChart.templates.ana);
+
+            var chart = new OrgChart(document.getElementById("organigrama-tree"), {
+                template: "ana",
+                nodeBinding: {
+                    field_0: "name",
+                    field_1: "title"
+                },
+                scaleInitial: 0.7,
+                enablePan: true,
+                enableZoom: true,
+                enableEdit: false,
+                nodeMouseClick: OrgChart.action.none,
+                menu: {},
+                enableDragDrop: false,
+                enableSearch: false,
+                showMenuButton: false,
+                tags: {
+                    "assistant": { template: "assistantTemplate" },
+                    "subAssistant": { template: "subAssistantTemplate" }
+                },
+                nodes: hierarchyCargos
+            });
+        }
+    };
+</script>
+
+<script>
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 15;
+        const contentWidth = pageWidth - 2 * margin;
+        let yPosition = 40;
+
+
+        // Function to add footer to a specific page
+        const addFooter = (doc, cargoName, currentPage, totalPages) => {
+            doc.setPage(currentPage);
+            // Draw footer background
+            doc.setFillColor(0, 51, 102); // Dark blue (#003366)
+            doc.rect(0, pageHeight - 15, pageWidth, 10, 'F');
+            // Draw border line above footer
+            doc.setDrawColor(0, 51, 102);
+            doc.setLineWidth(0.2);
+            doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+            // Set text properties
+            doc.setFontSize(8);
+            doc.setTextColor(255, 255, 255); // White text
+            doc.setFont('helvetica', 'normal');
+            // Add cargo name (left)
+            doc.text(`Cargo: ${cargoName || 'Sin nombre'}`, margin, pageHeight - 8);
+            // Add page number (right)
+            doc.text(`Página ${currentPage} de ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+        };
+
+
+
+        const logoInformaticaUrl = '/img/logoInformaticaSistemas.png';
+        const imgInformatica = new Image();
+        imgInformatica.crossOrigin = "Anonymous";
+        imgInformatica.src = logoInformaticaUrl;
+
+        const logoUMSSUrl = '/img/LogoUMSS.png';
+        const imgUMSS = new Image();
+        imgUMSS.crossOrigin = "Anonymous";
+        imgUMSS.src = logoUMSSUrl;
+
+        Promise.all([
+            new Promise((resolve, reject) => { imgInformatica.onload = resolve; imgInformatica.onerror = reject; }),
+            new Promise((resolve, reject) => { imgUMSS.onload = resolve; imgUMSS.onerror = reject; })
+        ]).then(() => {
+            doc.setFillColor(0, 51, 102);
+            doc.rect(0, 0, pageWidth, 30, 'F');
+            try {
+                doc.addImage(imgInformatica, 'PNG', 10, 5, 20, 20);
+                doc.addImage(imgUMSS, 'PNG', pageWidth - 30, 5, 20, 20);
+            } catch (e) { console.error("Error adding images: ", e); }
+            doc.setFontSize(16); doc.setTextColor(255, 255, 255);
+            doc.text("PERFIL DE CARGO", pageWidth / 2, 15, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text(cargoData.name || 'Nombre del Cargo', pageWidth / 2, 25, { align: 'center' });
+
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("1. IDENTIFICACIÓN DEL CARGO", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+
+            const addField = (label, value) => {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.setFont('helvetica', 'bold'); doc.text(label, margin, yPosition);
+                doc.setFont('helvetica', 'normal');
+                let textLines = doc.splitTextToSize(value || '---', contentWidth - 45);
+                doc.text(textLines, margin + 50, yPosition);
+                yPosition += (textLines.length * 4) + 4;
+            };
+
+            addField("Denominación del Cargo:", cargoData.name);
+            addField("Título:", cargoData.title);
+            addField("Correo:", cargoData.email);
+            addField("Teléfono:", cargoData.phone);
+            addField("Descripción:", cargoData.description);
+            addField("Jefe/Superior:", document.querySelector('.cargo-details p:nth-of-type(5) span').innerText);
+            addField("Cargos Dependientes:", document.querySelector('.cargo-details p:nth-of-type(6) span').innerText);
+            addField("Etiquetas:", document.querySelector('.cargo-details p:nth-of-type(7) span').innerText);
+
+            yPosition += 5;
+
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("2. RESPONSABILIDADES", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+            if (responsabilidadesData && responsabilidadesData.length > 0) {
+                responsabilidadesData.forEach((resp, index) => {
+                    const respText = `${index + 1}. ${resp.descripcion}`;
+                    let textLines = doc.splitTextToSize(respText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay responsabilidades asignadas.", margin, yPosition); yPosition += 10;
+            }
+            yPosition += 5;
+
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("3. RELACIONES INTERNAS", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+            if (relacionesInternasData && relacionesInternasData.length > 0) {
+                relacionesInternasData.forEach((rel, index) => {
+                    const relText = `${index + 1}. ${rel.origen.name} -> ${rel.destino.name} (${rel.tipoRelacion})`;
+                    let textLines = doc.splitTextToSize(relText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No tiene relaciones internas definidas.", margin, yPosition); yPosition += 10;
+            }
+            yPosition += 5;
+
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("4. RELACIONES EXTERNAS", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+            if (relacionesExternasData && relacionesExternasData.length > 0) {
+                relacionesExternasData.forEach((rel, index) => {
+                    const relText = `${index + 1}. ${rel.nombre}`;
+                    let textLines = doc.splitTextToSize(relText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No tiene relaciones externas definidas.", margin, yPosition); yPosition += 10;
+            }
+            yPosition += 5;
+
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("5. FUNCIONES Y ACTIVIDADES", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+            if (funcionesActividadesData && funcionesActividadesData.length > 0) {
+                funcionesActividadesData.forEach((func, index) => {
+                    const funcText = `${index + 1}. ${func.descripcion}`;
+                    let textLines = doc.splitTextToSize(funcText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay funciones o actividades asignadas.", margin, yPosition); yPosition += 10;
+            }
+            yPosition += 5;
+
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("6. DOCUMENTOS QUE GENERA", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+            if (documentosGeneraData && documentosGeneraData.length > 0) {
+                documentosGeneraData.forEach((func, index) => {
+                    const funcText = `${index + 1}. ${func.descripcion}`;
+                    let textLines = doc.splitTextToSize(funcText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay documentos generados asignados.", margin, yPosition); yPosition += 10;
+            }
+            yPosition += 5;
+
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("7. PERFIL DE CONTRATACIÓN", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+            if (perfilesContratacionData && perfilesContratacionData.length > 0) {
+                perfilesContratacionData.forEach((func, index) => {
+                    const funcText = `${index + 1}. ${func.descripcion}`;
+                    let textLines = doc.splitTextToSize(funcText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay items de perfiles de contratación asignados.", margin, yPosition); yPosition += 10;
+            }
+            yPosition += 5;
+
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("8. GRADO ACADÉMICO MÍNIMO", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+            if (gradoAcademicoMinimoData && gradoAcademicoMinimoData.length > 0) {
+                gradoAcademicoMinimoData.forEach((func, index) => {
+                    const funcText = `${index + 1}. ${func.descripcion}`;
+                    let textLines = doc.splitTextToSize(funcText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay item de grado académico mínimo asignado.", margin, yPosition); yPosition += 10;
+            }
+            yPosition += 5;
+
+
+
+
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("9. OTROS CONOCIMIENTOS RECOMENDABLES", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+            if (otrosConocimientosData && otrosConocimientosData.length > 0) {
+                otrosConocimientosData.forEach((func, index) => {
+                    const funcText = `${index + 1}. ${func.descripcion}`;
+                    let textLines = doc.splitTextToSize(funcText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay items de otros conocimientos recomendables.", margin, yPosition); yPosition += 10;
+            }
+            yPosition += 5;
+
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102); doc.setFontSize(12);
+            doc.text("10. HABILIDADES Y DESTREZAS", margin, yPosition);
+            yPosition += 5; doc.setLineWidth(0.3); doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 8;
+            doc.setFontSize(10); doc.setTextColor(51, 51, 51); doc.setFont('helvetica', 'normal');
+            if (habilidadesDestrezasData && habilidadesDestrezasData.length > 0) {
+                habilidadesDestrezasData.forEach((func, index) => {
+                    const funcText = `${index + 1}. ${func.descripcion}`;
+                    let textLines = doc.splitTextToSize(funcText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay items de habilidades y destrezas.", margin, yPosition); yPosition += 10;
+            }
+            yPosition += 5;
+
+            // Add footer to all pages
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                addFooter(doc, cargoData.name, i, totalPages);
+            }
+
+            doc.save(`perfil_cargo_${cargoData.name.replace(/ /g, '_')}.pdf`);
+        }).catch((error) => {
+            console.error("Error loading images for PDF: ", error);
+            alert("Error al cargar imágenes para el PDF. Se generará sin logos.");
+        });
+    }
+</script>
+</body>
+</html>

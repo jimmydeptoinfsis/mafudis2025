@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Organigrama</title>
+    <script src="/js/OrgChart.js"></script>
+    <style>
+        #tree {
+            width: 100%;
+            height: 600px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+<h1>Organigrama de la Empresa</h1>
+<div id="tree"></div>
+
+<script th:inline="javascript">
+    window.onload = function () {
+        // Template para "assistant" (rojo, rectángulo, nombre en tres líneas)
+        OrgChart.templates.assistantTemplate = Object.assign({}, OrgChart.templates.ana);
+
+
+        // Obtener los datos inyectados desde el controlador
+        var cargos = [[${cargos}]];
+
+        // Procesar los datos para ajustar el formato de "tags"
+        if (cargos && cargos.length > 0) {
+            cargos.forEach(cargo => {
+                if (cargo.tags && cargo.tags.length > 0) {
+                    cargo.tags = cargo.tags.map(tag => tag.name);
+                } else {
+                    cargo.tags = [];
+                }
+            });
+        }
+
+        // Configuración del organigrama
+        var chart = new OrgChart(document.getElementById("tree"), {
+            template: "ana",
+            nodeBinding: {
+                field_0: "name",
+                field_1: "title"
+            },
+            scaleInitial: 0.5,
+            enablePan: true,
+            enableZoom: true,
+            enableEdit: false,
+            nodeMouseClick: OrgChart.action.none,
+            menu: {},
+
+            enableDragDrop: false,
+            enableSearch: false, // Mantener el buscador (opcional: cambiar a false para deshabilitarlo)
+            showMenuButton: false,
+            tags: {
+                "assistant": { template: "assistantTemplate" },
+                "subAssistant": { template: "subAssistantTemplate" }
+            },
+            nodes: cargos
+        });
+
+        // Evento de clic en un nodo para redirigir a la página de detalles
+        chart.on('click', function(sender, args) {
+            var node = args.node;
+            if (node) {
+                window.location.href = '/cargos/details/' + node.id;
+            }
+            return false; // Evitar comportamiento por defecto
+        });
+    };
+</script>
+</body>
+</html>

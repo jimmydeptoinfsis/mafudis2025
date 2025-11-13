@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="organigrama-content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-sitemap me-2"></i>
+                    Organigrama de la Institución
+                </div>
+                <div class="card-body">
+                    <div id="tree" style="width: 100%; height: 600px; overflow: auto; border: 1px solid #ddd; border-radius: 8px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incluir la librería OrgChart si no está incluida globalmente -->
+    <script th:if="${not @environment.acceptsProfiles('test')}" src="https://balkangraph.com/js/latest/OrgChart.js"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        console.log('Script del organigrama iniciando...');
+
+        // Función para inicializar cuando el DOM esté listo y OrgChart disponible
+        function initWhenReady() {
+            // Verificar que el contenedor exista
+            const treeContainer = document.getElementById("tree");
+            if (!treeContainer) {
+                console.error('Contenedor #tree no encontrado');
+                return false;
+            }
+
+            // Verificar que OrgChart esté disponible
+            if (typeof OrgChart === 'undefined') {
+                console.log('OrgChart no disponible aún, reintentando...');
+                return false;
+            }
+
+            console.log('Inicializando organigrama...');
+
+            try {
+                // Plantilla personalizada
+                OrgChart.templates.disco = Object.assign({}, OrgChart.templates.ula);
+                OrgChart.templates.disco.size = [255, 85];
+                OrgChart.templates.disco.node =
+                    '<rect x="0" y="0" height="{h}" width="{w}" rx="15" ry="15" fill="#002a4c" stroke-width="3" stroke="#e30613"></rect>' +
+                    '<line x1="0" y1="2.5" x2="{w}" y2="2.5" stroke-width="0" stroke="#e30613" stroke-linecap="round"></line>';
+                OrgChart.templates.disco.field_0 = '<text style="{style0}" font-weight="bold" fill="#fff" x="127.5" y="26" text-anchor="middle">{val}</text>';
+                OrgChart.templates.disco.field_1 = '<text style="{style1}" font-weight="bold" fill="#fff" x="127.5" y="46" text-anchor="middle">{val}</text>';
+                OrgChart.templates.disco.field_2 = '<text style="{style2}" font-weight="bold" fill="#fff" x="127.5" y="66" text-anchor="middle">{val}</text>';
+
+                // Funciones auxiliares
+                function getFontSize(line) {
+                    if (!line) return "font-size: 0px;";
+                    const len = line.length;
+                    if (len <= 20) return "font-size: 16px;";
+                    if (len <= 30) return "font-size: 14px;";
+                    return "font-size: 12px;";
+                }
+
+                function splitNameIntoLines(fullName) {
+                    const words = (fullName || "").split(" ");
+                    const lines = ["", "", ""];
+                    let currentLine = 0;
+                    for (let i = 0; i < words.length && currentLine < 3; i++) {
+                        const word = words[i];
+                        const testLine = lines[currentLine] + (lines[currentLine] ? " " : "") + word;
+                        if (testLine.length <= 25) {
+                            lines[currentLine] = testLine;
+                        } else {
+                            if (currentLine < 2) {
+                                currentLine++;
+                                i--; // re-procesar esta palabra en la siguiente línea
+                            }
+                        }
+                    }
+                    return lines;
+                }
+
+                // Obtener los datos del servidor de forma segura
+                var cargosRaw = /*[[${cargos}]]*/ [];
+                var cargos = [];
+
+                console.log('Datos recibidos del servidor:', cargosRaw);
+
+                // Procesar datos del servidor o usar datos de ejemplo
+                if (cargosRaw && Array.isArray(cargosRaw) && cargosRaw.length > 0) {
+                    cargos = cargosRaw.map(function(cargo) {
+                        return {
+                            id: cargo.id || 0,
+                            pid: cargo.pid || null,
+                            name: cargo.name || "Sin nombre",
+                            tags: Array.isArray(cargo.tags) ? cargo.tags.map(function(tag) {
+                                return typeof tag === 'string' ? tag : (tag.name || tag);
+                            }) : []
+                        };
+                    });
+                } else {
+                    console.log('No se encontraron datos válidos del servidor, usando datos de ejemplo');
+                    cargos = [
+                        { id: 1, pid: null, name: "Rector", tags: [] },
+                        { id: 2, pid: 1, name: "Vicerrector Académico", tags: [] },
+                        { id: 3, pid: 1, name: "Vicerrector de Investigación", tags: [] },
+                        { id: 4, pid: 2, name: "Decano Facultad de Ciencias", tags: [] },
+                        { id: 5, pid: 2, name: "Decano Facultad de Ingeniería", tags: [] },
+                        { id: 6, pid: 4, name: "Director Carrera de Biología", tags: [] },
+                        { id: 7, pid: 4, name: "Director Carrera de Matemáticas", tags: [] },
+                        { id: 8, pid: 5, name: "Director Carrera de Sistemas", tags: [] },
+                        { id: 9, pid: 5, name: "Director Carrera de Civil", tags: [] }
+                    ];
+                }
+
+                // Procesar los datos para el organigrama
+                cargos.forEach(function(cargo) {
+                    const lines = splitNameIntoLines(cargo.name);
+                    cargo.name = lines[0];
+                    cargo.title = lines[1];
+                    cargo.extra = lines[2];
+                    cargo.style0 = getFontSize(cargo.name);
+                    cargo.style1 = getFontSize(cargo.title);
+                    cargo.style2 = getFontSize(cargo.extra);
+                });
+
+                console.log('Datos procesados para el organigrama:', cargos);
+
+                // Crear el organigrama
+                var chart = new OrgChart(treeContainer, {
+                    template: "disco",
+                    nodeBinding: {
+                        field_0: "name",
+                        field_1: "title",
+                        field_2: "extra",
+                        style0: "style0",
+                        style1: "style1",
+                        style2: "style2"
+                    },
+                    scaleInitial: 0.7,
+                    enablePan: true,
+                    enableZoom: true,
+                    nodeMouseClick: OrgChart.action.none,
+                    menu: {},
+                    enableDragDrop: false,
+                    enableSearch: false,
+                    tags: {
+                        "assistant": { template: "disco" }
+                    },
+                    nodes: cargos
+                });
+
+                // Event handler para clicks
+                chart.on('click', function(sender, args) {
+                    console.log('Nodo clickeado:', args.node);
+                    if (args.node && args.node.id) {
+                        alert('Clickeaste en: ' + (args.node.name || 'Nodo sin nombre'));
+                    }
+                    return false;
+                });
+
+                console.log('Organigrama inicializado correctamente');
+                return true;
+
+            } catch (error) {
+                console.error('Error al crear el organigrama:', error);
+                treeContainer.innerHTML = '<div class="alert alert-danger text-center">' +
+                    'Error al crear el organigrama: ' + error.message + '</div>';
+                return false;
+            }
+        }
+
+        // Intentar inicializar múltiples veces hasta que funcione
+        function tryInitialize() {
+            let attempts = 0;
+            const maxAttempts = 10;
+            const interval = 500; // 500ms entre intentos
+
+            function attempt() {
+                attempts++;
+                console.log('Intento de inicialización #' + attempts);
+
+                if (initWhenReady()) {
+                    console.log('Inicialización exitosa en intento #' + attempts);
+                    return;
+                }
+
+                if (attempts < maxAttempts) {
+                    setTimeout(attempt, interval);
+                } else {
+                    console.error('No se pudo inicializar el organigrama después de ' + maxAttempts + ' intentos');
+                    const treeContainer = document.getElementById("tree");
+                    if (treeContainer) {
+                        treeContainer.innerHTML = '<div class="alert alert-warning text-center">' +
+                            'No se pudo cargar la librería del organigrama. Por favor, recarga la página.</div>';
+                    }
+                }
+            }
+
+            // Comenzar los intentos
+            attempt();
+        }
+
+        // Ejecutar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', tryInitialize);
+        } else {
+            tryInitialize();
+        }
+
+        /*]]>*/
+    </script>
+</div>
+</body>
+</html>

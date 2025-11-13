@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!-- Head -->
+<head th:replace="~{base-layout :: head('Dashboard')}"></head>
+
+<body>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br><!-- Breadcrumb -->
+    <div class="breadcrumb-container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/dashboard">
+                        <i class="fas fa-home me-1"></i>Inicio
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" layout:fragment="breadcrumb">
+                    Página Actual
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Bienvenido al Panel de Administración
+                    </div>
+                    <div class="card-body">
+                        <h5>Departamento de Informática y Sistemas</h5>
+                        <p class="text-muted">Sistema de Gestión Administrativa - MAFUDIS (Manual de Funciones del Departamento de Informática y Sistemas)</p>
+                        <p>Utilice el menú lateral para navegar entre las diferentes secciones del sistema de administración.</p>
+
+                        <!-- Demo cards for responsive testing -->
+                        <div class="row mt-4">
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="card-title">Unidades</h6>
+                                                <h3>3</h3>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-building fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="card-title">Carreras</h6>
+                                                <h3>2</h3>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-user-graduate fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="card-title">Cargos</h6>
+                                                <h3>22</h3>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-sitemap fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

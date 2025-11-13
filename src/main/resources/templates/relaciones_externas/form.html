@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${isNew} ? 'Nueva Relación Externa' : 'Editar Relación Externa'">Relación Externa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .relacion-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .relacion-form h1 {
+            color: #87CEEB;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .error-message {
+            color: #ff5555;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .form-actions {
+            margin-top: 20px;
+        }
+        .form-actions button {
+            background-color: #87CEEB;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .form-actions button:hover {
+            background-color: #6bb9d6;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #87CEEB;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="relacion-form">
+    <h1 th:text="${isNew} ? 'Nueva Relación Externa' : 'Editar Relación Externa'">Relación Externa</h1>
+
+    <form th:action="${isNew} ? @{/relaciones-externas} : @{/relaciones-externas/edit/{id}(id=${relacionExterna.id})}"
+          th:object="${relacionExterna}"
+          method="post">
+
+        <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" th:field="*{nombre}" required>
+            <div th:if="${#fields.hasErrors('nombre')}" class="error-message" th:errors="*{nombre}"></div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Guardar</button>
+            <a th:href="@{/relaciones-externas}" class="back-link">Cancelar</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

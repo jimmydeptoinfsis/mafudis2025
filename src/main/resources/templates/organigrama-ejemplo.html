@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head th:replace="~{fragments/head-fragment :: head}"></head>
+<body>
+<div class="container">
+    <header th:replace="~{fragments/header-fragment :: header}"></header>
+    <nav th:replace="~{fragments/breadcrumb-fragment :: breadcrumb}"></nav>
+    <div class="main-content">
+        <aside th:replace="~{fragments/sidebar-fragment :: sidebar}"></aside>
+        <main>
+            <h2>Página de Organigrama</h2>
+            <p>Seleccione "Organigrama ejemplo" en el menú lateral para ver el organigrama en un modal.</p>
+        </main>
+    </div>
+    <footer th:replace="~{fragments/footer-fragment :: footer}"></footer>
+
+    <!-- Modal -->
+    <div class="modal fade" id="organigramaModal" tabindex="-1" aria-labelledby="organigramaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="organigramaModalLabel">Organigrama de Ejemplo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div th:replace="~{organigrama12 :: organigrama-content}"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="breadcrumb(titulo)">
+    <div class="breadcrumb-container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/dashboard">
+                        <i class="fas fa-home me-1"></i>Inicio
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" th:text="${titulo}">
+                    Página Actual
+                </li>
+            </ol>
+        </nav>
+    </div>
+</div>
+</body>
+</html>

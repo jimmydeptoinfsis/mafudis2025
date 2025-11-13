@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Relaciones del Cargo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>Relaciones del Cargo: <span th:text="${cargo.name}"></span></h2>
+        </div>
+
+        <div class="card-body">
+            <!-- Relaciones donde el cargo es ORIGEN -->
+            <div class="mb-4">
+                <h4>Relaciones donde este cargo es Origen:</h4>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Cargo Destino</th>
+                        <th>Tipo de Relación</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="relacion : ${relacionesComoOrigen}">
+                        <td th:text="${relacion.destino.name}"></td>
+                        <td th:text="${relacion.tipoRelacion}"></td>
+                        <td>
+                            <a th:href="@{/relaciones-internas/edit/{id}(id=${relacion.id})}"
+                               class="btn btn-sm btn-warning">Editar</a>
+                            <a th:href="@{/relaciones-internas/delete/{id}(id=${relacion.id},fromOrganigrama=true)}"
+                               class="btn btn-sm btn-danger ms-2"
+                               onclick="return confirm('¿Eliminar esta relación?')">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${relacionesComoOrigen.isEmpty()}">
+                        <td colspan="3" class="text-center">No hay relaciones donde este cargo sea origen</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Relaciones donde el cargo es DESTINO -->
+            <div class="mb-4">
+                <h4>Relaciones donde este cargo es Destino:</h4>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Cargo Origen</th>
+                        <th>Tipo de Relación</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="relacion : ${relacionesComoDestino}">
+                        <td th:text="${relacion.origen.name}"></td>
+                        <td th:text="${relacion.tipoRelacion}"></td>
+                        <td>
+                            <a th:href="@{/relaciones-internas/edit/{id}(id=${relacion.id})}"
+                               class="btn btn-sm btn-warning">Editar</a>
+                            <a th:href="@{/relaciones-internas/delete/{id}(id=${relacion.id},fromOrganigrama=true)}"
+                               class="btn btn-sm btn-danger ms-2"
+                               onclick="return confirm('¿Eliminar esta relación?')">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${relacionesComoDestino.isEmpty()}">
+                        <td colspan="3" class="text-center">No hay relaciones donde este cargo sea destino</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a th:href="@{/relaciones-internas/new/origen/{id}(id=${cargo.id})}"
+                   class="btn btn-primary me-md-2">
+                    Crear nueva relación desde este cargo
+                </a>
+                <a th:href="@{/organigrama7}" class="btn btn-secondary">Volver al organigrama</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

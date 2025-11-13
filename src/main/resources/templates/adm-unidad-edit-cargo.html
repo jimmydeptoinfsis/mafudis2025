@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!-- Head -->
+<head th:replace="~{base-layout :: head('Dashboard')}"></head>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+    }
+</style>
+<body>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br> <!-- Breadcrumb -->
+    <div class="breadcrumb-container mb-3">
+        <div th:replace="~{fragments/_breadcrumbs :: breadcrumbs}"></div>
+    </div>
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Editar Cargo asociado a Unidad para <span th:text="${unidad.nombreUnidad} ?: 'Sin nombre'"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="unidad-edit-cargo">
+                            <!--<h2>Editar Cargo asociado a Unidad para <span th:text="${unidad.nombreUnidad} ?: 'Sin nombre'"></span></h2>-->
+
+                            Seleccionar Cargo Asociado
+                            <form th:action="@{/adm/unidades/{id}/cargos/update-associations(id=${unidad.id})}" method="post">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <!--<thead>
+                                        <tr>
+                                            <th>Seleccionar</th>
+                                            <th>Nombre</th>
+                                        </tr>
+                                        </thead>-->
+                                        <tbody>
+                                        <tr th:each="cargo : ${allCargos}">
+                                            <td>
+                                                <input type="radio" th:name="selectedCargo" th:value="${cargo.id}"
+                                                       th:checked="${cargos.contains(cargo)}">
+                                            </td>
+                                            <td th:text="${cargo.name} ?: 'N/A'"></td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(allCargos)}">
+                                            <td colspan="2">No hay cargos disponibles (sin pid).</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Guardar Asignación</button>
+                                <a th:href="@{${backUrl}}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver a Detalles de la Unidad</a>
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<header th:fragment="header" class="header">
+    <div class="header-content">
+        <div class="logo-section">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+            </div>
+            <div class="university-info">
+                <h1>Universidad Mayor de San Simón</h1>
+                <p>Panel de Administración</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="#" class="user-menu" data-bs-toggle="dropdown">
+                <div class="user-avatar"><i class="fas fa-user"></i></div>
+                <div>
+                    <div style="font-size: 0.9rem; font-weight: 500;">Administrador</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8;">admin@umss.edu.bo</div>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="organigrama-content(cargos)">
+    <div class="row">
+        <div class="card-body">
+            <div id="tree"></div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /* <![CDATA[ */
+        // 1. Define una función para inicializar el gráfico
+        function inicializarOrganigrama() {
+            // Obtener los datos inyectados desde el controlador
+            var cargos = /*[[${cargos}]]*/ [];
+
+            // Si no hay datos, no hacer nada
+            if (!cargos || cargos.length === 0) {
+                document.getElementById("tree").innerHTML = '<div class="alert alert-warning">No hay datos para mostrar en el organigrama.</div>';
+                return;
+            }
+
+            // Procesar los datos para ajustar el formato de "tags"
+            cargos.forEach(cargo => {
+                if (cargo.tags && cargo.tags.length > 0) {
+                    // Asegurarse de que los tags son solo strings
+                    cargo.tags = cargo.tags.map(tag => typeof tag === 'object' ? tag.name : tag);
+                } else {
+                    cargo.tags = [];
+                }
+            });
+
+            // Configuración del organigrama
+            var chart = new OrgChart(document.getElementById("tree"), {
+                template: "ana",
+                nodeBinding: {
+                    field_0: "name",
+                    field_1: "title"
+                },
+                scaleInitial: 0.6,
+                enableSearch: true,
+                nodeMouseClick: OrgChart.action.none,
+                menu: {},
+                tags: {
+                    "assistant": {
+                        template: "ana" // Puedes usar una plantilla diferente si lo deseas
+                    }
+                },
+                nodes: cargos
+            });
+
+            // Evento de clic en un nodo para redirigir
+            chart.on('click', function(sender, args) {
+                if (args.node && args.node.id) {
+                    console.log("Redirigiendo a /cargos/details/" + args.node.id);
+                    // Descomenta la siguiente línea para activar la redirección
+                    // window.location.href = '/cargos/details/' + args.node.id;
+                }
+                return false;
+            });
+        }
+
+        // 2. Ejecuta la función de inicialización inmediatamente
+        // Esto se ejecutará cuando la función 'executeScripts' de adm-scripts.js procese este bloque
+        try {
+            inicializarOrganigrama();
+        } catch (e) {
+            console.error("Error al inicializar el organigrama:", e);
+            document.getElementById("tree").innerText = "Error al renderizar el organigrama. Revise la consola para más detalles.";
+        }
+        /* ]]> */
+    </script>
+</div>
+</body>
+</html>

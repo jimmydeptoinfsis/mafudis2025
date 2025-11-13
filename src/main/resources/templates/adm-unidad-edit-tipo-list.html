@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!-- Head -->
+<head th:replace="~{base-layout :: head('Dashboard')}"></head>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+    }
+</style>
+<style>
+    /* Estilos copiados de adm-unidad-edit-objetivos-list.html */
+    .sortable-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Estilo para cada tarjeta */
+    .objetivo-card {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .objetivo-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Estilo para el ícono (sin funcionalidad de agarre)
+      Usando el color exacto de adm-unidad-edit-objetivos-list.html
+    */
+    .drag-handle {
+        cursor: default; /* No mostramos cursor de agarre */
+        color: #adb5bd; /* <-- Este es el color "plomo" (gris) del otro archivo */
+        font-size: 1.2rem;
+    }
+
+    /* Texto del item */
+    .objetivo-text {
+        font-size: 1rem;
+        color: #343a40;
+    }
+
+    /* Contenedor de los botones de acción */
+    .objetivo-actions .btn {
+        margin-left: 5px;
+    }
+</style>
+<body>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br>
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-container mb-3">
+        <div th:replace="~{fragments/_breadcrumbs :: breadcrumbs}"></div>
+
+    </div>
+    <div class="container-fluid">
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+    </div>
+
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Gestión de tipos de unidad
+                    </div>
+                    <div class="card-body">
+                        <div class="unidad-edit-clasificacion-list">
+                            <h1 th:text="${pageTitle}">Tipos de Unidad</h1>
+
+
+
+                            <ul id="tipos-unidad-container" class="sortable-list">
+                                <li th:each="tipoUnidad : ${tiposUnidad}"
+                                    class="objetivo-item mb-3"> <div class="card objetivo-card">
+                                    <div class="card-body d-flex align-items-center py-2 px-3">
+
+                                            <span class="drag-handle me-3">
+                                                <i class="fas fa-grip-vertical"></i>
+                                            </span>
+
+                                        <span class="objetivo-text flex-grow-1" th:text="${tipoUnidad.nombre}">
+                                                Nombre del Tipo de Unidad...
+                                            </span>
+
+                                        <div class="objetivo-actions">
+                                            <a th:href="@{/tipos-unidad/adm/edit/{id}(id=${tipoUnidad.id},fromUnidadId=${fromUnidadId})}"
+                                               class="btn btn-outline-primary btn-sm"
+                                               data-bs-toggle="tooltip"
+                                               title="Editar">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </a>
+                                            <a th:href="@{/tipos-unidad/adm/delete/{id}(id=${tipoUnidad.id}, fromUnidadId=${fromUnidadId})}"
+                                               class="btn btn-outline-danger btn-sm"
+                                               onclick="return confirm('¿Está seguro de que quiere eliminar este tipo?');"
+                                               data-bs-toggle="tooltip"
+                                               title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                </li>
+                            </ul>
+
+                            <div class="mb-3">
+                                <a th:href="@{/tipos-unidad/adm/new(fromUnidadId=${fromUnidadId})}"
+                                   class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i> Agregar Nuevo Tipo de Unidad
+                                </a>
+                                <a th:href="@{${backUrl}}" class="btn btn-secondary me-2">
+                                    <i class="fas fa-arrow-left"></i> Volver</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

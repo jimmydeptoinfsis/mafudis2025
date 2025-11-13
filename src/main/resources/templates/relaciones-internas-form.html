@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestionar Relaciones Internas del Cargo</title>
+    <!-- CDN scripts with integrity checks -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <!-- Fallback local scripts -->
+    <script th:if="true">
+        window.jQuery || document.write('<script src="/js/jquery-3.6.0.min.js"><\/script>');
+        if (!$.ui || !$.ui.sortable) {
+            document.write('<script src="/js/jquery-ui.min.js"><\/script>');
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .relaciones-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .relaciones-container h1 {
+            color: #87CEEB;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .relaciones-container p {
+            margin-bottom: 20px;
+        }
+        .checkbox-list {
+            margin-bottom: 20px;
+        }
+        .checkbox-list label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-check-input {
+            margin-right: 10px;
+        }
+        .sortable-relaciones {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        .relacion-item {
+            background-color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: move;
+            position: relative;
+            user-select: none;
+        }
+        .relacion-item:hover {
+            background-color: #f0f0f0;
+        }
+        .ui-state-highlight {
+            background-color: #c8ebfb;
+            opacity: 0.4;
+            height: 40px;
+            border: 1px dashed #87CEEB;
+        }
+        .save-button, .cancel-link {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #87CEEB;
+            border: 1px solid #87CEEB;
+            border-radius: 3px;
+            background-color: #fff;
+            cursor: pointer;
+            margin-right: 20px;
+        }
+        .save-button:hover, .cancel-link:hover {
+            background-color: #f0f0f0;
+            text-decoration: none;
+        }
+        .save-button {
+            background-color: #87CEEB;
+            color: #fff;
+            border: none;
+        }
+        .save-button:hover {
+            background-color: #6bb9d8;
+        }
+        .no-relaciones {
+            color: #555;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+<div class="relaciones-container">
+    <h1 th:text="'Gestionar Relaciones Internas para ' + ${cargo.name}">Gestionar Relaciones Internas</h1>
+    <p>Selecciona los cargos relacionados para este cargo:</p>
+
+    <form th:action="@{/cargos/{cargoId}/relaciones-internas(cargoId=${cargo.id})}" method="post">
+        <div class="checkbox-list">
+            <th:block th:each="rel : ${allCargos}">
+                <div>
+                    <input class="form-check-input" type="checkbox" name="relacionIds"
+                           th:value="${rel.id}"
+                           th:id="'rel_' + ${rel.id}"
+                           th:checked="${#sets.contains(cargo.relacionesInternas.![id], rel.id)}">
+                    <label th:for="'rel_' + ${rel.id}" th:text="${rel.name}"></label>
+                </div>
+            </th:block>
+            <p th:if="${#lists.isEmpty(allCargos)}" class="no-relaciones">
+                No hay otros cargos disponibles para relacionar.
+            </p>
+        </div>
+
+        <button type="submit" class="save-button">Guardar Cambios</button>
+        <a th:href="@{/cargos/details/{id}(id=${cargo.id})}" class="cancel-link">Cancelar</a>
+    </form>
+
+    <h2>Relaciones Internas Actuales (Arrastra para Reordenar)</h2>
+    <ul id="relaciones-list" class="sortable-relaciones">
+        <li th:each="relacion : ${cargo.relacionesInternas}"
+            th:id="'relacion-' + ${relacion.id}"
+            class="relacion-item"
+            th:data-id="${relacion.id}">
+            <span th:text="${relacion.name}"></span>
+            <span th:text="' (Orden: ' + ${cargo.relacionesInternasOrder[relacion] != null ? cargo.relacionesInternasOrder[relacion] : 'No definido'})'"></span>
+        </li>
+        <li th:if="${#sets.isEmpty(cargo.relacionesInternas)}" class="no-relaciones">
+            No hay relaciones internas asignadas.
+        </li>
+    </ul>
+</div>
+
+<script>
+    $(function() {
+        // Debug: Check if jQuery and jQuery UI are loaded
+        console.log('jQuery loaded:', !!window.jQuery);
+        console.log('jQuery UI Sortable loaded:', $.ui && $.ui.sortable);
+
+        // Check if list exists
+        var $list = $("#relaciones-list");
+        console.log('Relaciones list found:', $list.length > 0);
+        console.log('Relacion items:', $list.find('.relacion-item').length);
+
+        $list.sortable({
+            items: ".relacion-item",
+            placeholder: "ui-state-highlight",
+            update: function(event, ui) {
+                var orderedIds = [];
+                $list.find(".relacion-item").each(function() {
+                    var id = $(this).data("id");
+                    if (id) orderedIds.push(id);
+                });
+                console.log('Ordered IDs:', orderedIds);
+
+                if (orderedIds.length === 0) {
+                    console.warn('No items to reorder');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/cargos/' + [[${cargo.id}]] + '/relaciones-internas/reorder',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(orderedIds),
+                    success: function(response) {
+                        console.log('Reorder success:', response);
+                        window.location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Reorder error:', xhr.status, xhr.responseText);
+                        alert("Error al actualizar el orden: " + (xhr.responseText || error));
+                    }
+                });
+            },
+            start: function(event, ui) {
+                console.log('Drag started:', ui.item.text());
+            },
+            stop: function(event, ui) {
+                console.log('Drag stopped:', ui.item.text());
+            }
+        }).disableSelection();
+
+        console.log('Sortable initialized');
+    });
+</script>
+</body>
+</html>

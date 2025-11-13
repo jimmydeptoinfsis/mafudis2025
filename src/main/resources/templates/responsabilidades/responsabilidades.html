@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Responsabilidades del Cargo</title>
+    <!-- Incluir jQuery y jQuery UI para drag & drop -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .cargo-details {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .cargo-details h1 {
+            color: #87CEEB; /* Celeste */
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .cargo-details h2 {
+            color: #555;
+            font-size: 1.4em;
+            margin-top: 20px;
+        }
+        .cargo-details p {
+            margin: 10px 0;
+            color: #333;
+        }
+        .cargo-details p strong {
+            color: #555;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #87CEEB;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .responsabilidad-list {
+            list-style: none;
+            padding: 0;
+        }
+        .responsabilidad-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: move;
+        }
+        .responsabilidad-item:hover {
+            background-color: #f0f0f0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .form-group button {
+            padding: 8px 15px;
+            background-color: #87CEEB;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #6bb9d8;
+        }
+        .edit-form {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+<div class="cargo-details">
+    <h1 th:text="${cargo.name}">Nombre del Cargo</h1>
+    <p><strong>Cargo:</strong> <span th:text="${cargo.title}">Sin cargo</span></p>
+    <p><strong>Correo:</strong> <span th:text="${cargo.email}">Sin correo</span></p>
+    <p><strong>Teléfono:</strong> <span th:text="${cargo.phone}">Sin teléfono</span></p>
+    <p><strong>Descripción:</strong> <span th:text="${cargo.description}">Sin descripción</span></p>
+
+    <h2>Responsabilidades</h2>
+    <ul class="responsabilidad-list" id="responsabilidadList">
+        <li th:each="resp : ${responsabilidades}" th:id="'resp-' + ${resp.id}" class="responsabilidad-item">
+            <span th:text="${resp.descripcion}"></span>
+            <button onclick="mostrarFormularioEdicion([[${resp.id}]], '[[${resp.descripcion}]]')">Editar</button>
+            <form th:action="@{/cargos/{cargoId}/responsabilidades/eliminar/{id}(cargoId=${cargo.id}, id=${resp.id})}" method="post" style="display:inline;">
+                <button type="submit" onclick="return confirm('¿Estás seguro de eliminar esta responsabilidad?')">Eliminar</button>
+            </form>
+        </li>
+    </ul>
+
+    <h2>Agregar Nueva Responsabilidad</h2>
+    <form th:action="@{/cargos/{cargoId}/responsabilidades/crear(cargoId=${cargo.id})}" th:object="${nuevaResponsabilidad}" method="post">
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea id="descripcion" th:field="*{descripcion}" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <button type="submit">Agregar</button>
+        </div>
+    </form>
+
+    <div id="editForm" class="edit-form" style="display:none;">
+        <h3>Editar Responsabilidad</h3>
+        <form id="editResponsabilidadForm" method="post">
+            <input type="hidden" id="editId" name="id">
+            <div class="form-group">
+                <label for="editDescripcion">Descripción:</label>
+                <textarea id="editDescripcion" name="descripcion" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit">Guardar Cambios</button>
+                <button type="button" onclick="ocultarFormularioEdicion()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <a th:href="@{/cargos/details/{id}(id=${cargo.id})}" class="back-link">Volver a Detalles del Cargo</a>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Habilitar drag & drop con jQuery UI
+        $("#responsabilidadList").sortable({
+            update: function(event, ui) {
+                // Obtener el nuevo orden de los IDs
+                let ordenIds = $(this).sortable("toArray").map(id => id.replace("resp-", ""));
+                // Enviar el nuevo orden al servidor
+                $.ajax({
+                    url: '/cargos/' + [[${cargo.id}]] + '/responsabilidades/reordenar',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(ordenIds),
+                    success: function(response) {
+                        console.log("Orden actualizado: " + response);
+                    },
+                    error: function(error) {
+                        console.error("Error al actualizar el orden: ", error);
+                    }
+                });
+            }
+        });
+        $("#responsabilidadList").disableSelection();
+    });
+
+    function mostrarFormularioEdicion(id, descripcion) {
+        document.getElementById("editId").value = id;
+        document.getElementById("editDescripcion").value = descripcion;
+        document.getElementById("editForm").style.display = "block";
+        document.getElementById("editResponsabilidadForm").action = "/cargos/" + [[${cargo.id}]] + "/responsabilidades/editar/" + id;
+    }
+
+    function ocultarFormularioEdicion() {
+        document.getElementById("editForm").style.display = "none";
+    }
+</script>
+</body>
+</html>

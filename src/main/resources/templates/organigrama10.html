@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Organigrama - Universidad Mayor de San Simón</title>
+    <script src="/js/OrgChart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --umss-red: #C41E3A;
+            --umss-blue: #1E3A8A;
+            --umss-white: #FFFFFF;
+            --umss-gold: #FFD700;
+            --umss-dark-red: #8B1538;
+            --umss-light-blue: #3B82F6;
+            --shadow-color: rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--umss-blue) 0%, var(--umss-red) 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--umss-white) 0%, #f8fafc 100%);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            position: relative;
+            z-index: 10;
+            border-bottom: 4px solid var(--umss-gold);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                    linear-gradient(45deg, transparent 30%, rgba(196, 30, 58, 0.05) 50%, transparent 70%),
+                    linear-gradient(-45deg, transparent 30%, rgba(30, 58, 138, 0.05) 50%, transparent 70%);
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--umss-red) 0%, var(--umss-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px var(--shadow-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: var(--umss-blue);
+            font-weight: 400;
+            position: relative;
+            z-index: 2;
+        }
+
+        .container {
+            position: relative;
+            z-index: 5;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            margin: 2rem;
+            border-radius: 20px;
+            box-shadow:
+                    0 20px 60px rgba(0, 0, 0, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        #tree {
+            width: 100%;
+            height: 700px;
+            overflow: auto;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f8fafc 0%, var(--umss-white) 100%);
+            border: 3px solid var(--umss-gold);
+            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Estilos personalizados para los nodos del organigrama */
+        .orgchart {
+            background: transparent !important;
+        }
+
+        .orgchart .node {
+            background: linear-gradient(135deg, var(--umss-white) 0%, #f1f5f9 100%) !important;
+            border: 3px solid var(--umss-gold) !important;
+            border-radius: 15px !important;
+            box-shadow:
+                    0 8px 25px rgba(0, 0, 0, 0.15),
+                    0 3px 10px rgba(196, 30, 58, 0.1) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative !important;
+            overflow: visible !important;
+        }
+
+        .orgchart .node::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--umss-red), var(--umss-blue), var(--umss-gold));
+            border-radius: 17px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .orgchart .node:hover::before {
+            opacity: 1;
+        }
+
+        .orgchart .node:hover {
+            transform: translateY(-5px) scale(1.05) !important;
+            box-shadow:
+                    0 15px 40px rgba(0, 0, 0, 0.2),
+                    0 8px 20px rgba(196, 30, 58, 0.2) !important;
+        }
+
+        .orgchart .node .title {
+            background: linear-gradient(135deg, var(--umss-red) 0%, var(--umss-dark-red) 100%) !important;
+            color: var(--umss-white) !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            padding: 12px 15px !important;
+            border-radius: 12px 12px 0 0 !important;
+            text-align: center !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            position: relative !important;
+        }
+
+        .orgchart .node .title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background: var(--umss-gold);
+            border-radius: 2px;
+        }
+
+        .orgchart .node .content {
+            background: var(--umss-white) !important;
+            color: var(--umss-blue) !important;
+            font-weight: 500 !important;
+            font-size: 13px !important;
+            padding: 15px !important;
+            text-align: center !important;
+            border-radius: 0 0 12px 12px !important;
+        }
+
+        /* Estilos para nodos con diferentes tags */
+        .orgchart .node[data-tags*="assistant"] .title {
+            background: linear-gradient(135deg, var(--umss-blue) 0%, var(--umss-light-blue) 100%) !important;
+        }
+
+        .orgchart .node[data-tags*="subAssistant"] .title {
+            background: linear-gradient(135deg, var(--umss-gold) 0%, #FFA500 100%) !important;
+            color: var(--umss-blue) !important;
+        }
+
+        /* Estilos para las líneas de conexión */
+        .orgchart .lines .topLine,
+        .orgchart .lines .bottomLine,
+        .orgchart .lines .leftLine,
+        .orgchart .lines .rightLine {
+            border-color: var(--umss-gold) !important;
+            border-width: 3px !important;
+        }
+
+        .orgchart .lines .downLine {
+            background-color: var(--umss-gold) !important;
+            width: 3px !important;
+        }
+
+        /* Animaciones y efectos adicionales */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Efectos de partículas decorativas */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, var(--umss-red), var(--umss-blue), var(--umss-gold));
+            border-radius: 25px;
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0.7;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            #tree {
+                height: 500px;
+            }
+        }
+
+        /* Scrollbar personalizada */
+        #tree::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        #tree::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        #tree::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--umss-red), var(--umss-blue));
+            border-radius: 6px;
+            border: 2px solid var(--umss-white);
+        }
+
+        #tree::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--umss-dark-red), var(--umss-blue));
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1><i class="fas fa-university"></i> Organigrama de la Empresa</h1>
+    <div class="subtitle">Universidad Mayor de San Simón</div>
+</div>
+
+<div class="container">
+    <div id="tree"></div>
+</div>
+
+<script th:inline="javascript">
+    window.onload = function () {
+        // Template personalizado para "assistant" con colores UMSS
+        OrgChart.templates.assistantTemplate = Object.assign({}, OrgChart.templates.ana);
+        OrgChart.templates.assistantTemplate.node =
+            '<rect x="0" y="0" height="{h}" width="{w}" fill="url(#umssGradient)" stroke="#FFD700" stroke-width="3" rx="15"></rect>';
+
+        OrgChart.templates.subAssistantTemplate = Object.assign({}, OrgChart.templates.ana);
+        OrgChart.templates.subAssistantTemplate.node =
+            '<rect x="0" y="0" height="{h}" width="{w}" fill="url(#umssBlueGradient)" stroke="#FFD700" stroke-width="3" rx="15"></rect>';
+
+        // Obtener los datos inyectados desde el controlador
+        var cargos = [[${cargos}]];
+
+        // Procesar los datos para ajustar el formato de "tags"
+        if (cargos && cargos.length > 0) {
+            cargos.forEach(cargo => {
+                if (cargo.tags && cargo.tags.length > 0) {
+                    cargo.tags = cargo.tags.map(tag => tag.name);
+                } else {
+                    cargo.tags = [];
+                }
+            });
+        }
+
+        // Configuración del organigrama con mejoras estéticas
+        var chart = new OrgChart(document.getElementById("tree"), {
+            template: "ana",
+            nodeBinding: {
+                field_0: "name",
+                field_1: "title"
+            },
+            scaleInitial: 0.6,
+            enablePan: true,
+            enableZoom: true,
+            enableEdit: false,
+            nodeMouseClick: OrgChart.action.none,
+            menu: {},
+            enableDragDrop: false,
+            enableSearch: false,
+            showMenuButton: false,
+
+            // Gradientes personalizados UMSS
+            defs: `
+                    <defs>
+                        <linearGradient id="umssGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#C41E3A;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#8B1538;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="umssBlueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1E3A8A;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="dropshadow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feDropShadow dx="0" dy="5" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+                        </filter>
+                    </defs>
+                `,
+
+            tags: {
+                "assistant": {
+                    template: "assistantTemplate"
+                },
+                "subAssistant": {
+                    template: "subAssistantTemplate"
+                }
+            },
+            nodes: cargos || [
+                // Datos de ejemplo si no hay datos del servidor
+                { id: 1, name: "Director General", title: "Cargo Principal", tags: ["assistant"] },
+                { id: 2, pid: 1, name: "Subdirector", title: "Cargo Secundario", tags: ["subAssistant"] },
+                { id: 3, pid: 1, name: "Jefe de Área", title: "Área Operativa" }
+            ]
+        });
+
+        // Evento de clic en un nodo para redirigir a la página de detalles
+        chart.on('click', function(sender, args) {
+            var node = args.node;
+            if (node) {
+                // Efecto visual al hacer clic
+                var nodeElement = document.querySelector(`[data-n-id="${node.id}"]`);
+                if (nodeElement) {
+                    nodeElement.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        nodeElement.style.transform = '';
+                        window.location.href = '/cargos/details/' + node.id;
+                    }, 150);
+                }
+            }
+            return false;
+        });
+
+        // Efectos adicionales de hover
+        chart.on('redraw', function() {
+            setTimeout(() => {
+                const nodes = document.querySelectorAll('.orgchart .node');
+                nodes.forEach(node => {
+                    node.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                });
+            }, 100);
+        });
+    };
+</script>
+</body>
+</html>

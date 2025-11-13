@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mafudis: Optimizador Organizacional UMSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #374151; /* Gris oscuro para texto general */
+        }
+        .hero-bg {
+            background-color: #003366; /* Azul UMSS oscuro */
+        }
+        .umss-accent {
+            color: #f39c12; /* Naranja/Dorado UMSS */
+        }
+        .section-title {
+            font-size: 2.25rem; /* 36px */
+            font-weight: 700;
+            margin-bottom: 2.5rem; /* 40px */
+            text-align: center;
+            color: #111827; /* Gris muy oscuro para títulos */
+        }
+        .feature-icon-svg {
+            width: 3.5rem; /* 56px */
+            height: 3.5rem; /* 56px */
+            margin-bottom: 1rem; /* 16px */
+            color: #0056b3; /* Azul UMSS medio */
+        }
+        .cta-button {
+            padding: 0.875rem 1.75rem; /* 14px 28px */
+            border-radius: 0.5rem; /* 8px */
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-block;
+            text-align: center;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        .cta-primary {
+            background-color: #f39c12; /* Naranja/Dorado UMSS */
+            color: #003366; /* Azul UMSS oscuro */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .cta-primary:hover {
+            background-color: #e68a00;
+        }
+        .cta-secondary {
+            background-color: #0056b3; /* Azul UMSS medio */
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .cta-secondary:hover {
+            background-color: #004494;
+        }
+        /* Estilos para el organigrama */
+        .org-chart-container {
+            width: 100%;
+            min-height: 550px; /* Altura mínima para visualización */
+            border: 1px solid #e5e7eb; /* Borde gris claro */
+            border-radius: 0.75rem; /* 12px */
+            padding: 1.5rem; /* 24px */
+            margin-bottom: 3rem; /* 48px */
+            background-color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            overflow-x: auto; /* Permite scroll horizontal si el gráfico es muy ancho */
+        }
+        /* Clases de Google Charts para personalización */
+        .google-visualization-orgchart-node {
+            border: 2px solid #0056b3 !important; /* Borde de nodos más grueso */
+            background-color: #eff6ff !important; /* Fondo de nodos azul muy claro */
+            border-radius: 0.5rem !important; /* Nodos redondeados */
+            padding: 0.5rem !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        }
+        .google-visualization-orgchart-node-medium { /* Estilo para el nombre/título del nodo */
+            font-weight: 600 !important; /* Semibold */
+            color: #003366 !important; /* Azul UMSS oscuro */
+            font-size: 0.9rem !important;
+        }
+        .google-visualization-orgchart-node-small { /* Estilo para la descripción/tooltip del nodo */
+            color: #1f2937 !important; /* Gris oscuro */
+            font-size: 0.8rem !important;
+        }
+        .google-visualization-orgchart-linebottom,
+        .google-visualization-orgchart-lineleft,
+        .google-visualization-orgchart-lineright,
+        .google-visualization-orgchart-linetop {
+            border-color: #0056b3 !important; /* Color de las líneas de conexión */
+        }
+        .footer-bg {
+            background-color: #1f2937; /* Gris oscuro para el footer */
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<header class="hero-bg text-white py-20">
+    <div class="container mx-auto px-6 text-center">
+        <img src="https://placehold.co/150x150/ffffff/003366?text=UMSS" alt="Logo UMSS" class="mx-auto mb-8 rounded-full"
+             onerror="this.onerror=null; this.src='https://placehold.co/150x150/cccccc/333333?text=Error+Logo';">
+        <h1 class="text-5xl font-bold mb-4">
+            Bienvenido a <span class="umss-accent">Mafudis</span>
+        </h1>
+        <p class="text-xl mb-10 max-w-3xl mx-auto">
+            La solución integral para visualizar, gestionar y optimizar la estructura organizacional del Departamento de Informática y Sistemas de la UMSS.
+        </p>
+        <div>
+            <a href="#organigramas" class="cta-button cta-primary mr-4 mb-4 sm:mb-0">Ver Organigramas</a>
+            <a href="#contacto" class="cta-button cta-secondary">Solicitar Demo</a>
+        </div>
+    </div>
+</header>
+
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-6">
+        <h2 class="section-title">Potencia tu Gestión Organizacional</h2>
+        <div class="grid md:grid-cols-3 gap-10 text-center">
+            <div class="p-6 rounded-lg">
+                <svg class="feature-icon-svg mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <h3 class="text-xl font-semibold mb-2">Visualización Clara</h3>
+                <p class="text-gray-600">Organigramas interactivos y detallados de unidades y cargos.</p>
+            </div>
+            <div class="p-6 rounded-lg">
+                <svg class="feature-icon-svg mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <h3 class="text-xl font-semibold mb-2">Perfiles Detallados</h3>
+                <p class="text-gray-600">Accede a funciones, responsabilidades y relaciones de cada puesto.</p>
+            </div>
+            <div class="p-6 rounded-lg">
+                <svg class="feature-icon-svg mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                <h3 class="text-xl font-semibold mb-2">Gestión Centralizada</h3>
+                <p class="text-gray-600">Actualizaciones en tiempo real y control de acceso seguro.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="organigramas" class="py-16">
+    <div class="container mx-auto px-6">
+        <h2 class="section-title">Explora Nuestra Estructura</h2>
+
+        <div>
+            <h3 class="text-2xl font-semibold mb-6 text-center text-gray-700">Organigrama de Cargos</h3>
+            <div id="chart_cargos_div" class="org-chart-container">
+                <div class="flex items-center justify-center h-full">
+                    <p class="text-gray-500">Cargando organigrama de cargos...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12">
+            <h3 class="text-2xl font-semibold mb-6 text-center text-gray-700">Organigrama de Unidades</h3>
+            <div id="chart_unidades_div" class="org-chart-container">
+                <div class="flex items-center justify-center h-full">
+                    <p class="text-gray-500">Cargando organigrama de unidades...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="contacto" class="py-20 bg-gray-100">
+    <div class="container mx-auto px-6 text-center">
+        <h2 class="section-title">¿Listo para Transformar la Gestión en tu Departamento?</h2>
+        <p class="text-lg text-gray-700 mb-10 max-w-2xl mx-auto">
+            Descubre cómo Mafudis puede adaptarse a las necesidades específicas de la UMSS y facilitar una organización más eficiente y transparente.
+        </p>
+        <a href="mailto:mafudis.soporte@umss.edu.bo?subject=Solicitud de Demo Mafudis" class="cta-button cta-primary text-lg">
+            Solicita una Demostración Personalizada
+        </a>
+    </div>
+</section>
+
+<footer class="footer-bg text-gray-300 py-12">
+    <div class="container mx-auto px-6 text-center">
+        <img src="https://placehold.co/100x100/ffffff/003366?text=UMSS" alt="Logo UMSS Pequeño" class="mx-auto mb-4 opacity-75 rounded-md"
+             onerror="this.onerror=null; this.src='https://placehold.co/100x100/cccccc/333333?text=Error';">
+        <p class="mb-2">&copy; <span id="currentYear"></span> Mafudis - Equipo de Desarrollo. Todos los derechos reservados.</p>
+        <p class="text-sm mb-2">Una solución para la optimización del Departamento de Informática y Sistemas - UMSS.</p>
+        <p class="text-sm">
+            <a href="https://www.umss.edu.bo/" target="_blank" rel="noopener noreferrer" class="hover:text-umss-accent transition-colors">UMSS Oficial</a> |
+            <a href="https://www.fcyt.umss.edu.bo/" target="_blank" rel="noopener noreferrer" class="hover:text-umss-accent transition-colors">FCyT</a>
+        </p>
+    </div>
+</footer>
+
+<script type="text/javascript">
+    // Carga la API de visualización de Google Charts y el paquete 'orgchart'.
+    google.charts.load('current', {packages:['orgchart']});
+
+    // Define las funciones de callback para dibujar los gráficos cuando la API esté cargada.
+    google.charts.setOnLoadCallback(drawChartCargos);
+    google.charts.setOnLoadCallback(drawChartUnidades);
+
+    function drawChartCargos() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');        // Nombre del nodo (ID único)
+        data.addColumn('string', 'Manager');    // Nombre del nodo padre (ID único)
+        data.addColumn('string', 'ToolTip');    // Texto que aparece al pasar el mouse
+
+        // Datos de ejemplo para el organigrama de CARGOS
+        // Formato: [ {v:'ID_NODO', f:'Texto a Mostrar<div style="color:blue; font-style:italic">Subtexto</div>'}, 'ID_PADRE', 'Tooltip' ]
+        // El campo 'f' permite HTML para formatear el texto del nodo.
+        var datosCargos = [
+            [{v:'director_general', f:'Director General<div style="color:#0056b3; font-style:italic">Máxima Autoridad</div>'}, '', 'El Director General del Departamento'],
+            [{v:'secretaria_dg', f:'Secretaría DG<div style="color:#718096;">Asistente Ejecutiva</div>'}, 'director_general', 'Secretaría de Dirección General'],
+
+            [{v:'dir_sistemas', f:'Director Ing. Sistemas<div style="color:#0056b3;">Responsable Carrera Sistemas</div>'}, 'director_general', 'Dirección de Ingeniería de Sistemas'],
+            [{v:'jefe_lab_sis', f:'Jefe Laboratorios SIS<div style="color:#718096;">Coordina Labs. Sistemas</div>'}, 'dir_sistemas', 'Jefatura de Laboratorios de Sistemas'],
+            [{v:'docente_sis_1', f:'Docente Titular SIS<div style="color:#718096;">Área de Programación</div>'}, 'dir_sistemas', 'Docente de Sistemas'],
+            [{v:'aux_lab_sis', f:'Auxiliar Lab. Cómputo SIS'}, 'jefe_lab_sis', 'Auxiliar del Laboratorio de Cómputo de Sistemas'],
+
+
+            [{v:'dir_informatica', f:'Director Ing. Informática<div style="color:#0056b3;">Responsable Carrera Informática</div>'}, 'director_general', 'Dirección de Ingeniería Informática'],
+            [{v:'jefe_lab_inf', f:'Jefe Laboratorios INF<div style="color:#718096;">Coordina Labs. Informática</div>'}, 'dir_informatica', 'Jefatura de Laboratorios de Informática'],
+            [{v:'docente_inf_1', f:'Docente Titular INF<div style="color:#718096;">Área de Redes</div>'}, 'dir_informatica', 'Docente de Informática'],
+            [{v:'aux_lab_inf', f:'Auxiliar Lab. Desarrollo INF'}, 'jefe_lab_inf', 'Auxiliar del Laboratorio de Desarrollo de Informática'],
+
+            [{v:'jefatura_dpto', f:'Jefatura de Departamento<div style="color:#0056b3;">Unidad Administrativa Central</div>'}, 'director_general', 'Jefatura del Departamento de Informática y Sistemas'],
+            [{v:'secretaria_jd', f:'Secretaría JD<div style="color:#718096;">Apoyo Administrativo</div>'}, 'jefatura_dpto', 'Secretaría de Jefatura de Departamento'],
+            [{v:'portero', f:'Portero Mensajero'}, 'jefatura_dpto', 'Portería y Mensajería']
+        ];
+        data.addRows(datosCargos);
+
+        // Crea el objeto del gráfico.
+        var chart = new google.visualization.OrgChart(document.getElementById('chart_cargos_div'));
+
+        // Opciones del gráfico
+        var options = {
+            'allowHtml':true, // Permite usar HTML en los nodos (campo 'f')
+            'allowCollapse':true, // Permite expandir/colapsar nodos
+            'nodeClass': 'google-visualization-orgchart-node', // Clase CSS para los nodos
+            'selectedNodeClass': 'google-visualization-orgchart-node-selected', // Clase CSS para nodo seleccionado
+            'size': 'medium' // Puede ser 'small', 'medium', or 'large'
+        };
+
+        // Dibuja el gráfico con los datos y opciones.
+        chart.draw(data, options);
+    }
+
+    function drawChartUnidades() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');
+        data.addColumn('string', 'Manager');
+        data.addColumn('string', 'ToolTip');
+
+        // Datos de ejemplo para el organigrama de UNIDADES
+        var datosUnidades = [
+            [{v:'dpto_inf_sis', f:'Departamento de Informática y Sistemas<div style="color:#0056b3; font-style:italic">Nivel Superior</div>'}, '', 'Departamento General'],
+
+            [{v:'dir_carrera_sis', f:'Dirección Carrera Ing. Sistemas<div style="color:#718096;">Unidad Académica</div>'}, 'dpto_inf_sis', 'Dirección de la Carrera de Ingeniería de Sistemas'],
+            [{v:'lab_computo_sis', f:'Laboratorio de Cómputo SIS'}, 'dir_carrera_sis', 'Laboratorio de Cómputo de Sistemas'],
+            [{v:'lab_desarrollo_sis', f:'Laboratorio de Desarrollo SIS'}, 'dir_carrera_sis', 'Laboratorio de Desarrollo de Sistemas'],
+
+            [{v:'dir_carrera_inf', f:'Dirección Carrera Ing. Informática<div style="color:#718096;">Unidad Académica</div>'}, 'dpto_inf_sis', 'Dirección de la Carrera de Ingeniería Informática'],
+            [{v:'lab_redes_inf', f:'Laboratorio de Redes INF'}, 'dir_carrera_inf', 'Laboratorio de Redes de Informática'],
+            [{v:'lab_ia_inf', f:'Laboratorio de IA INF'}, 'dir_carrera_inf', 'Laboratorio de Inteligencia Artificial de Informática'],
+
+            [{v:'jefatura_administrativa', f:'Jefatura Administrativa Dpto.<div style="color:#718096;">Unidad de Apoyo</div>'}, 'dpto_inf_sis', 'Jefatura Administrativa del Departamento'],
+            [{v:'area_secretaria', f:'Área de Secretaría'}, 'jefatura_administrativa', 'Secretaría General del Departamento'],
+            [{v:'area_servicios_grales', f:'Área de Servicios Generales'}, 'jefatura_administrativa', 'Servicios Generales y Mantenimiento']
+        ];
+        data.addRows(datosUnidades);
+
+        var chart = new google.visualization.OrgChart(document.getElementById('chart_unidades_div'));
+        var options = {
+            'allowHtml':true,
+            'allowCollapse':true,
+            'nodeClass': 'google-visualization-orgchart-node',
+            'selectedNodeClass': 'google-visualization-orgchart-node-selected',
+            'size': 'medium'
+        };
+        chart.draw(data, options);
+    }
+
+    // Actualizar el año en el footer
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // Smooth scroll para enlaces internos
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+</script>
+</body>
+</html>
+```
+
+**Cambios y Adiciones Clave:**
+
+1.  **Estilos CSS Completados:** He terminado la sección `<style>` con más personalizaciones para los elementos de la página y los organigramas de Google Charts, buscando una apariencia profesional y alineada con una identidad institucional (usando azules y dorados como ejemplo).
+2.  **Estructura HTML Completa:**
+ * **Hero Section:** Con un título, subtítulo, logo de ejemplo y botones de acción.
+* **Features Section:** Destacando tres características clave con iconos SVG.
+* **Organigramas Section:**
+* Dos `div` separados (`chart_cargos_div` y `chart_unidades_div`) para albergar cada organigrama.
+                                                                  * Títulos para cada organigrama.
+                                                                  * Mensajes de "Cargando..." que se mostrarán mientras se generan los gráficos.
+                                                                                              * **CTA Section:** Una sección para invitar a los usuarios a solicitar una demostración.
+                                                                                              * **Footer:** Con información de copyright, año dinámico y enlaces.
+3.  **JavaScript para Google Charts:**
+ * Se carga la librería de Google Charts.
+ * `google.charts.setOnLoadCallback()` se usa para asegurar que las funciones que dibujan los gráficos se ejecuten solo después de que la API esté lista.
+                                       * **`drawChartCargos()`:**
+                                                              * Crea un `DataTable` de Google.
+                                                              * Define columnas para `Name` (ID del nodo), `Manager` (ID del nodo padre), y `ToolTip`.
+                                                                                                                                          * Incluye `datosCargos` de ejemplo. El formato `[{v:'ID', f:'Texto a Mostrar con HTML'}, 'ID_PADRE', 'Tooltip']` permite personalizar la apariencia de cada nodo.
+                                                                                                                                                                                                                                                           * Crea y dibuja el `OrgChart` con opciones como `allowHtml` (para el formato en los nodos) y `allowCollapse`.
+                                                                                                                                                                                                                                                                                                                                                      * **`drawChartUnidades()`:** Sigue una estructura similar para el organigrama de unidades, con sus propios datos de ejemplo (`datosUnidades`).
+4.  **Pequeñas Mejoras:**
+ * El año en el footer se actualiza dinámicamente con JavaScript.
+ * Se ha añadido un script simple para el desplazamiento suave (smooth scroll) para los enlaces internos (ej. el botón "Ver Organigramas").
+                                                                                                                                          * Se han añadido placeholders para imágenes (`placehold.co`) con manejo de error básico. Deberás reemplazarlos con tus imágenes reales.
+                                                                                                                                                                                                       * Se ha mejorado la semántica HTML y la accesibilidad básica.
+
+                                                                                                                                                                                                       **Para Integrar con Spring Boot y Thymeleaf:**
+
+1.  **Coloca este archivo** en tu directorio `src/main/resources/templates/` (o donde tengas tus plantillas Thymeleaf).
+2.  **Datos Dinámicos:** En tu controlador de Spring, prepara los datos para los organigramas (probablemente como listas de objetos o una estructura JSON).
+3.  **Pasar Datos a la Vista:** Añade estos datos al `Model`.
+4.  **Thymeleaf en JavaScript:** Dentro de las funciones `drawChartCargos` y `drawChartUnidades`, en lugar de los arrays `datosCargos` y `datosUnidades` estáticos, deberás usar la sintaxis de "inlining" de JavaScript de Thymeleaf para insertar los datos del modelo.
+
+                                                                                                                                                                                                           Por ejemplo, si pasas una variable `cargosDataJSON` (que es una cadena JSON) desde tu controlador:
+
+```javascript
+// En tu plantilla Thymeleaf, dentro del <script>
+                                              /*<![CDATA[*/
+                                          var datosCargosThymeleaf = /*[[${cargosDataJSON}]]*/ null;
+// Luego, necesitarías parsear este JSON y adaptarlo al formato que espera Google Charts.
+// O, si puedes generar la estructura exacta del array en el backend:
+var datosCargos = /*[[${listaDeCargosParaChart}]]*/ [];
+/*]]>*/
+// data.addRows(datosCargos); // Si ${listaDeCargosParaChart} ya tiene el formato correcto
+    ```
+
+La forma más directa sería generar la estructura de array de JavaScript directamente en el backend y pasarla como una cadena que Thymeleaf pueda imprimir tal cual, o como una lista de listas/objetos que Thymeleaf pueda iterar para construir el array `datosCargos` y `datosUnidades`.
+
+                                                                                                                                                                                               Esta página ahora debería ser una excelente presentación para "Mafudis". ¡Avísame si tienes más preguntas o necesitas ajust

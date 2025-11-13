@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Organigrama</title>
+    <script src="https://balkan.app/js/OrgChart.js"></script>
+    <style>
+        #tree {
+            width: 100%;
+            height: 600px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+<h1>Organigrama del Departamento de </h1>
+<h1>Informática y Sistemas </h1>
+<div id="tree"></div>
+
+<script th:inline="javascript">
+    window.onload = function () {
+        // Template para "assistant" (rojo, rectángulo, nombre en tres líneas)
+        OrgChart.templates.assistantTemplate = Object.assign({}, OrgChart.templates.ana);
+        OrgChart.templates.assistantTemplate.node =
+            '<rect x="0" y="0" width="150" height="120" rx="5" ry="5" fill="#e74c3c" stroke="#000000" stroke-width="1"></rect>';
+        OrgChart.templates.assistantTemplate.field_0 =
+            '<text style="font-size: 12px;" fill="#ffffff" x="75" y="40" text-anchor="middle" text-overflow="clip">{val}</text>';
+        OrgChart.templates.assistantTemplate.field_1 =
+            '<text style="font-size: 10px;" fill="#ffffff" x="75" y="100" text-anchor="middle">{val}</text>';
+
+        // Template para "subAssistant" (verde, círculo)
+        OrgChart.templates.subAssistantTemplate = Object.assign({}, OrgChart.templates.ana);
+        OrgChart.templates.subAssistantTemplate.node =
+            '<circle cx="75" cy="60" r="50" fill="#2ecc71" stroke="#000000" stroke-width="1"></circle>';
+        OrgChart.templates.subAssistantTemplate.field_0 =
+            '<text style="font-size: 12px;" fill="#ffffff" x="75" y="60" text-anchor="middle" text-overflow="clip">{val}</text>';
+        OrgChart.templates.subAssistantTemplate.field_1 =
+            '<text style="font-size: 10px;" fill="#ffffff" x="75" y="80" text-anchor="middle">{val}</text>';
+
+        // Template por defecto (ana) también con soporte para tres líneas
+        OrgChart.templates.ana.node =
+            '<rect x="0" y="0" width="150" height="120" rx="5" ry="5" fill="#039be5" stroke="#000000" stroke-width="1"></rect>';
+        OrgChart.templates.ana.field_0 =
+            '<text style="font-size: 12px;" fill="#ffffff" x="75" y="40" text-anchor="middle" text-overflow="clip">{val}</text>';
+        OrgChart.templates.ana.field_1 =
+            '<text style="font-size: 10px;" fill="#ffffff" x="75" y="100" text-anchor="middle">{val}</text>';
+
+        // Obtener los datos inyectados desde el controlador
+        var cargos = [[${cargos}]];
+
+        // Procesar los datos para ajustar el formato de "tags"
+        if (cargos && cargos.length > 0) {
+            cargos.forEach(cargo => {
+                if (cargo.tags && cargo.tags.length > 0) {
+                    // Transformar tags en una lista de solo nombres (ej. ["assistant"])
+                    cargo.tags = cargo.tags.map(tag => tag.name);
+                } else {
+                    // Si no hay tags, dejarlo como un array vacío
+                    cargo.tags = [];
+                }
+            });
+        }
+
+        var chart = new OrgChart(document.getElementById("tree"), {
+            template: "ana",
+            nodeBinding: {
+                field_0: "name",
+                field_1: "title"
+            },
+            nodeWidth: 150,
+            nodeHeight: 120,
+            scaleInitial: 0.8,
+            enablePan: true,
+            enableZoom: true,
+            enableEdit: false, // Deshabilitar edición
+            nodeMouseClick: OrgChart.action.none, // No hacer nada al hacer clic
+            menu: {}, // Deshabilitar menú contextual
+            enableDragDrop: false,
+            tags: {
+                "assistant": {
+                    template: "assistantTemplate"
+                },
+                "subAssistant": {
+                    template: "subAssistantTemplate"
+                }
+            },
+            nodes: cargos
+        });
+    };
+</script>
+</body>
+</html>

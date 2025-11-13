@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav aria-label="breadcrumb" th:fragment="breadcrumbs" th:if="${breadcrumbs != null and !breadcrumbs.isEmpty()}">
+    <ol class="breadcrumb">
+        <li th:each="crumb, iterStat : ${breadcrumbs}" class="breadcrumb-item" th:classappend="${crumb.url == null} ? 'active'">
+
+            <a th:if="${crumb.url != null}" th:href="@{${crumb.url}}">
+                <i th:if="${iterStat.first}" class="fas fa-home me-1"></i>
+                <span th:text="${crumb.label}"></span>
+            </a>
+
+            <span th:if="${crumb.url == null}">
+          <i th:if="${iterStat.first}" class="fas fa-home me-1"></i>
+          <span th:text="${crumb.label}"></span>
+        </span>
+
+        </li>
+    </ol>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestionar Relaciones Internas del Cargo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .relaciones-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .relaciones-container h1 {
+            color: #87CEEB;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .relaciones-container p {
+            margin-bottom: 20px;
+        }
+        .checkbox-list {
+            margin-bottom: 20px;
+        }
+        .checkbox-list label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-check-input {
+            margin-right: 10px;
+        }
+        .save-button, .cancel-link {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #87CEEB;
+            border: 1px solid #87CEEB;
+            border-radius: 3px;
+            background-color: #fff;
+            cursor: pointer;
+            margin-right: 20px;
+        }
+        .save-button:hover, .cancel-link:hover {
+            background-color: #f0f0f0;
+            text-decoration: none;
+        }
+        .save-button {
+            background-color: #87CEEB;
+            color: #fff;
+            border: none;
+        }
+        .save-button:hover {
+            background-color: #6bb9d8;
+        }
+        .no-relaciones-link {
+            color: #87CEEB;
+            text-decoration: none;
+        }
+        .no-relaciones-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="relaciones-container">
+    <h1 th:text="'Gestionar Relaciones Internas para ' + ${cargo.name}">Gestionar Relaciones</h1>
+    <p>Selecciona las relaciones internas (contactos/departamentos) para este cargo:</p>
+
+    <form th:action="@{/cargos/{cargoId}/relaciones-internas(cargoId=${cargo.id})}" method="post">
+        <div class="checkbox-list">
+            <th:block th:each="rel : ${allRelaciones}">
+                <div>
+                    <input class="form-check-input" type="checkbox" name="relacionIds"
+                           th:value="${rel.id}"
+                           th:id="'rel_' + ${rel.id}"
+                           th:checked="${#sets.contains(cargo.relacionesInternas.![id], rel.id)}">
+                    <label th:for="'rel_' + ${rel.id}" th:text="${rel.nombre}"></label>
+                </div>
+            </th:block>
+            <p th:if="${#lists.isEmpty(allRelaciones)}">
+                No hay relaciones internas definidas. Créalas <a class="no-relaciones-link" th:href="@{/relaciones-internas/new}">aquí</a>.
+            </p>
+        </div>
+
+        <button type="submit" class="save-button">Guardar Cambios</button>
+        <a th:href="@{/cargos/details/{id}(id=${cargo.id})}" class="cancel-link">Cancelar</a>
+    </form>
+</div>
+</body>
+</html>

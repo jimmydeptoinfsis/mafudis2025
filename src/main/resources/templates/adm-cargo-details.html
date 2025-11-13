@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$CONTENT_TITLE - Panel Administrativo UMSS">Panel Administrativo - UMSS</title>
+    <H1>Detalles de Unidad</H1>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">-->
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+
+    <style>
+
+        :root {
+            --umss-blue: #003f7f;
+            --umss-red: #dc3545;
+            --umss-white: #ffffff;
+            --umss-light-blue: #e8f2ff;
+            --umss-dark-blue: #002856;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--umss-blue) 0%, var(--umss-dark-blue) 100%);
+            color: white;
+            padding: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            height: 70px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            padding: 0 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Menu Toggle Button */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--umss-blue);
+            font-size: 18px;
+        }
+
+        .university-info h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .university-info p {
+            font-size: 0.85rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .user-menu:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--umss-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: block;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - 70px);
+            background: white;
+            border-right: 1px solid #e9ecef;
+            overflow-y: auto;
+            z-index: 1020;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1010;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: var(--umss-light-blue);
+            position: relative;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--umss-blue);
+            margin: 0;
+        }
+
+        .sidebar-close {
+            display: none;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--umss-blue);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-close:hover {
+            background: rgba(0, 63, 127, 0.1);
+        }
+
+        .nav-menu {
+            padding: 15px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 25px;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 20px 10px;
+            margin-bottom: 10px;
+        }
+
+        .nav-item {
+            margin: 2px 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--umss-light-blue);
+            color: var(--umss-blue);
+            transform: translateX(3px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--umss-blue), var(--umss-dark-blue));
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 63, 127, 0.3);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: 70px;
+            padding: 30px;
+            min-height: calc(100vh - 70px);
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb-container {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .breadcrumb {
+            margin: 0;
+            background: none;
+            padding: 0;
+        }
+
+        .breadcrumb-item a {
+            color: var(--umss-blue);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--umss-red);
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--umss-blue), var(--umss-dark-blue));
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--umss-blue), var(--umss-dark-blue));
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 63, 127, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--umss-red);
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* Tables */
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: var(--umss-light-blue);
+            color: var(--umss-dark-blue);
+            font-weight: 600;
+            border: none;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(0, 63, 127, 0.05);
+        }
+
+        /* Alerts */
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #b8dacd;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            border: 1px solid #f1b0b7;
+            color: #721c24;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--umss-dark-blue);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        /* Custom scrollbar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--umss-blue);
+            border-radius: 3px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .university-info h1 {
+                font-size: 1.2rem;
+            }
+
+            .university-info p {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Show menu toggle button */
+            .menu-toggle {
+                display: block;
+            }
+
+            /* Hide sidebar by default */
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1025;
+            }
+
+            /* Show sidebar when active */
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            /* Show overlay when sidebar is active */
+            .sidebar-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            /* Show close button in sidebar */
+            .sidebar-close {
+                display: block;
+            }
+
+            /* Adjust main content */
+            .main-content {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+
+            /* Adjust header */
+            .header-content {
+                padding: 0 15px;
+            }
+
+            .university-info h1 {
+                font-size: 1.1rem;
+            }
+
+            .university-info p {
+                display: none;
+            }
+
+            /* Hide user info text on very small screens */
+            .user-info {
+                display: none;
+            }
+
+            /* Adjust breadcrumb */
+            .breadcrumb-container {
+                padding: 12px 15px;
+                margin-bottom: 20px;
+            }
+
+            /* Adjust cards */
+            .card-header {
+                padding: 12px 15px;
+                font-size: 0.95rem;
+            }
+
+            .card-body {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                padding: 0 10px;
+            }
+
+            .main-content {
+                padding: 15px 10px;
+            }
+
+            .logo {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+
+            .university-info h1 {
+                font-size: 1rem;
+            }
+
+            .user-avatar {
+                width: 30px;
+                height: 30px;
+            }
+
+            .sidebar {
+                width: 85%;
+            }
+        }
+    </style>
+
+
+
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+        .cargo-details h2 {
+            color: #003366;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+        .cargo-details p {
+            margin-bottom: 10px;
+        }
+        .cargo-details p span {
+            font-weight: bold;
+        }
+        .btn {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .no-data {
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-container mb-3">
+        <div th:replace="~{fragments/_breadcrumbs :: breadcrumbs}"></div>
+    </div>
+
+   <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span th:text="${cargo.name}"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="cargo-details" id="cargoDetailsContent">
+
+                            <div class="cargo-section">
+                                <h2>Información General</h2>
+
+                            <!--<p><span>Cargo:</span> <span th:text="${cargo.name}">N/A</span><a th:href="@{/organigrama12}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></p>-->
+                            <!--<p><strong>Correo:</strong> <span th:text="${cargo.email}">Sin correo</span></p>
+                            <p><strong>Teléfono:</strong> <span th:text="${cargo.phone}">Sin teléfono</span></p>
+                            <p><strong>Descripción:</strong> <span th:text="${cargo.description}">Sin descripción</span></p>-->
+                            <p><strong>Jefe/Superior:</strong>
+                                    <span th:if="${superior != null and superior != 'Ninguno'}" th:text="${superior}"></span>
+                                    <span th:unless="${superior != null and superior != 'Ninguno'}">Director Académico</span>
+                            </p>
+                            <p><strong>Cargos Dependientes:</strong> <span th:text="${dependientes}">Ninguno</span></p>
+                            <p><strong>Clasificacion de Cargo:</strong>
+                                <span th:if="${tags == 'Ninguna'}" th:text="'Lineal'"></span>
+                                <span th:if="${tags == 'assistant'}" th:text="'Staff'"></span>
+                                <span th:unless="${tags == 'Ninguna' or tags == 'assistant'}" th:text="${tags}">Ninguna</span>
+                            </p>
+                            </div>
+                            <!-- Organigrama Section -->
+                            <div class="organigrama-section">
+                                <h2>Jerarquía del Cargo</h2>
+                                <div id="organigrama-tree"></div>
+                            </div>
+
+                            <div class="responsabilidades-section">
+                                <h2>Responsabilidades <a th:href="@{/responsabilidades/adm/cargo/{cargoId}(cargoId=${cargo.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></h2>
+                                <ul class="responsabilidades-list" th:if="${not #lists.isEmpty(responsabilidades)}">
+                                    <li th:each="resp : ${responsabilidades}" th:text="${resp.descripcion}">...</li>
+                                </ul>
+                                <p th:if="${#lists.isEmpty(responsabilidades)}">No hay responsabilidades asignadas.</p>
+                            </div>
+
+                            <div class="relaciones-section">
+                                <h2>Relaciones Internas<a th:href="@{/relaciones-internas/adm/list/{id}(id=${cargo.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></h2>
+                                <ul class="relaciones-list" th:if="${not #lists.isEmpty(relacionesInternas)}">
+                                    <li th:each="rel : ${relacionesInternas}">
+                                        <span th:text="${rel.origen.name} + ' -> ' + ${rel.destino.name} + ' (' + ${rel.tipoRelacion} + ')'"></span>
+                                    </li>
+                                </ul>
+                                <p th:if="${#lists.isEmpty(relacionesInternas)}">No tiene relaciones internas definidas.</p>
+                            </div>
+
+                            <div class="relaciones-externas-section">
+                                <h2>Relaciones Externas<a th:href="@{/cargos/adm/{cargoId}/relaciones-externas(cargoId=${cargo.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></h2>
+                                <ul class="relaciones-externas-list" th:if="${not #lists.isEmpty(relacionesExternas)}">
+                                    <li th:each="rel : ${relacionesExternas}" th:text="${rel.nombre}">...</li>
+                                </ul>
+                                <p th:if="${#lists.isEmpty(relacionesExternas)}">No tiene relaciones externas definidas.</p>
+                            </div>
+                            <div class="funciones-actividades-section">
+                                <h2>Funciones y Actividades<a th:href="@{/funciones-actividades/adm/cargo/{cargoId}(cargoId=${cargo.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></h2>
+                                <ul class="funciones-actividades-list" th:if="${not #lists.isEmpty(funcionesActividades)}">
+                                    <li th:each="func : ${funcionesActividades}" th:text="${func.descripcion}">...</li>
+                                </ul>
+                                <p th:if="${#lists.isEmpty(funcionesActividades)}">No hay funciones o actividades asignadas.</p>
+                            </div>
+                            <div class="documentos-generados-section">
+                                <!-- Documentos Generados -->
+                                <h2>Documentos Generados<a th:href="@{/documentos-genera/adm/cargo/{cargoId}(cargoId=${cargo.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></h2>
+                                <ul>
+                                    <li th:each="doc : ${documentosGenera}" th:text="${doc.descripcion}">Descripción del documento</li>
+                                    <li th:if="${documentosGenera.isEmpty()}" class="empty">No hay documentos asignados.</li>
+                                </ul>
+                            </div>
+                            <div class="perfiles-contratacion-section">
+                                <h2>Perfil de contratación<a th:href="@{/perfil-contratacion/adm/cargo/{cargoId}(cargoId=${cargo.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></h2>
+                                <ul>
+                                    <li th:each="per : ${perfilesContratacion}" th:text="${per.descripcion}">Descripción del perfil de contratación</li>
+                                    <li th:if="${perfilesContratacion.isEmpty()}" class="empty">No hay items en el perfil de contratación.</li>
+                                </ul>
+                            </div>
+                            <div class="grado-academico-section">
+                                <h2>Grado Académico Mínimo<a th:href="@{/grado-academico-minimo/adm/cargo/{cargoId}(cargoId=${cargo.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></h2>
+                                <ul>
+                                    <li th:each="grado : ${gradosAcademicos}" th:text="${grado.descripcion}">Descripción del grado académico</li>
+                                    <li th:if="${gradosAcademicos.isEmpty()}" class="empty">No hay grado académico asignado.</li>
+                                </ul>
+                            </div>
+                            <div class="otros-conocimientos-section">
+                                <h2>Otros Conocimientos Recomendables<a th:href="@{/otros-conocimientos/adm/cargo/{cargoId}(cargoId=${cargo.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></h2>
+                                <ul>
+                                    <li th:each="conocimiento : ${otrosConocimientos}" th:text="${conocimiento.descripcion}">Descripción del conocimiento</li>
+                                    <li th:if="${otrosConocimientos.isEmpty()}" class="empty">No hay conocimientos asignados.</li>
+                                </ul>
+                            </div>
+                            <div class="habilidades-destrezas-section">
+                                <h2>Habilidades y destrezas<a th:href="@{/habilidades-destrezas/adm/cargo/{cargoId}(cargoId=${cargo.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></h2>
+                                <ul>
+                                    <li th:each="habilidad : ${habilidadesDestrezas}" th:text="${habilidad.descripcion}">Descripción de la habilidad</li>
+                                    <li th:if="${habilidadesDestrezas.isEmpty()}" class="empty">No hay habilidades/destrezas asignadas.</li>
+                                </ul>
+                            </div>
+
+                            <a th:href="@{/organigrama12}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver al Organigrama de cargos</a>
+                            <button onclick="generatePDF()" class="btn btn-danger">
+                                <i class="fas fa-file-pdf"></i> Descargar Reporte PDF</button>
+                            <!--<a th:href="@{/organigrama1}" class="back-link">Volver al Organigrama</a>
+                            <a class="download-pdf" onclick="generatePDF()">Descargar PDF</a>
+                            <a th:href="@{/responsabilidades/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar Responsabilidades</a>
+                            <a th:href="@{/relaciones-internas}" class="back-link">Administrar Relaciones Internas (CRUD de tabla Relaciones Internas)</a>
+                            <a th:href="@{/relaciones-internas/new}" class="back-link">Gestionar Relaciones Internas (nueva relacion para elegir ambos cargos)</a>
+                            <a th:href="@{/relaciones-internas/new/origen/{id}(id=${cargo.id})}" class="back-link">Gestionar Relaciones Internas para el cargo</a>
+                            <a th:href="@{/relaciones-internas/list/{id}(id=${cargo.id})}" class="back-link">Gestionar CRUD Relaciones Internas para el cargo</a>
+                            <a th:href="@{/relaciones-externas}" class="back-link">Administrar Relaciones Externas (CRUD de tabla Relaciones Externas)</a>
+                            <a th:href="@{/cargos/{cargoId}/relaciones-externas(cargoId=${cargo.id})}" class="back-link">Gestionar Relaciones Externas</a>
+                            <a th:href="@{/funciones-actividades/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar Funciones y/o Actividades</a>
+                            <a th:href="@{/documentos-genera/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar Documentos que genera</a>
+                            <a th:href="@{/perfil-contratacion/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar perfil de contrataciones</a>
+                            <a th:href="@{/habilidades-destrezas/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Gestionar habilidades y destrezas</a>
+                            <a th:href="@{/grado-academico-minimo/cargo/{id}(id=${cargo.id})}" class="back-link">Gestionar Grados Académicos Mínimos</a>-->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+
+<div class="container">
+    <!-- Unit Details Section -->
+
+</div>
+
+<script th:inline="javascript">
+    const cargoData = /*[[${cargo}]]*/ {};
+    const responsabilidadesData = /*[[${responsabilidades}]]*/ [];
+    const relacionesInternasData = /*[[${relacionesInternas}]]*/ [];
+    const relacionesExternasData = /*[[${relacionesExternas}]]*/ [];
+    const funcionesActividadesData = /*[[${funcionesActividades}]]*/ [];
+    const documentosGeneraData = /*[[${documentosGenera}]]*/ [];
+    const perfilesContratacionData = /*[[${perfilesContratacion}]]*/ [];
+    const otrosConocimientosData = /*[[${otrosConocimientos}]]*/ [];
+    const habilidadesDestrezasData = /*[[${habilidadesDestrezas}]]*/ [];
+    const gradoAcademicoMinimoData = /*[[${gradosAcademicos}]]*/ [];
+    const hierarchyCargos = /*[[${hierarchyCargos}]]*/ [];
+
+    window.onload = function () {
+        if (hierarchyCargos && hierarchyCargos.length > 0) {
+            // 1. Clonamos la plantilla 'ana' para nuestra personalización
+            OrgChart.templates.customTemplate = Object.assign({}, OrgChart.templates.ana);
+            OrgChart.templates.customTemplate.size = [150, 60]; // Reduced size for smaller nodes
+
+            // 2. Personalizamos el campo del nombre para permitir el ajuste de línea y empezar desde la parte superior
+            OrgChart.templates.customTemplate.field_0 = `
+                <foreignObject x="5" y="5" width="140" height="50">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="field_0" style="text-align: center; font-size: 11px; color: #fff; line-height: 1.2em; padding-top: 0;">
+                        {val}
+                    </div>
+                </foreignObject>
+            `;
+
+            // 3. Personalizamos el fondo del nodo
+            OrgChart.templates.customTemplate.node = '<rect x="0" y="0" height="{h}" width="{w}" rx="10" ry="10" fill="#004883" stroke-width="0" stroke="#e30613"></rect>';
+
+            var chart = new OrgChart(document.getElementById("organigrama-tree"), {
+                // Usamos nuestra plantilla personalizada
+                template: "customTemplate",
+
+                // Aseguramos que el organigrama se alinee en la parte superior
+                layout: OrgChart.layout.normal,
+
+                // Vinculamos el campo 'name' de nuestros datos al 'field_0' de la plantilla
+                nodeBinding: {
+                    field_0: "name",
+                },
+
+                // Configuraciones adicionales del organigrama
+                scaleInitial: 0.8, // Reduced initial scale to make the div smaller
+
+                enableZoom: false,
+                nodeMouseClick: OrgChart.action.none, // Deshabilita la acción de clic en el nodo
+                menu: {}, // Deshabilita el menú contextual
+                enableSearch: false, // Disable search functionality
+                mouseScrool: OrgChart.action.none,
+                enablePan: false,
+                // CSS para el texto dentro del 'foreignObject' y el div con recuadro
+                css: `
+                    .boc-node .field_0 {
+                        white-space: normal !important;
+                        line-height: 1.2em;
+                        max-height: 3.6em; /* Permite hasta 3 líneas (1.2em * 3) */
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 3;
+                        -webkit-box-orient: vertical;
+                        padding-top: 0 !important;
+                    }
+                    #organigrama-tree {
+                        border: 2px solid #000; /* Recuadro negro de 2px */
+                        padding: 10px; /* Espacio interno opcional */
+                    }
+                `,
+
+                // Pasamos los datos de los cargos al organigrama
+                nodes: hierarchyCargos
+            });
+        }
+    };
+</script>
+<script>
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 15;
+        const contentWidth = pageWidth - 2 * margin;
+        let yPosition = 40;
+
+        // Función para agregar pie de página
+        const addFooter = (doc, cargoName, currentPage, totalPages) => {
+            doc.setPage(currentPage);
+            // Fondo del pie de página
+            doc.setFillColor(0, 51, 102);
+            doc.rect(0, pageHeight - 15, pageWidth, 10, 'F');
+            // Línea superior del pie de página
+            doc.setDrawColor(0, 51, 102);
+            doc.setLineWidth(0.2);
+            doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+            // Configurar texto
+            doc.setFontSize(8);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'normal');
+            // Nombre del cargo (izquierda)
+            doc.text(`Cargo: ${cargoName || 'Sin nombre'}`, margin, pageHeight - 8);
+            // Número de página (derecha)
+            doc.text(`Página ${currentPage} de ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+        };
+
+        // Función para verificar si necesita nueva página
+        const checkNewPage = (requiredSpace = 15) => {
+            if (yPosition > pageHeight - margin - requiredSpace) {
+                doc.addPage();
+                yPosition = margin;
+                return true;
+            }
+            return false;
+        };
+
+        // Función para agregar campo de información
+        const addField = (label, value) => {
+            checkNewPage();
+            doc.setFont('helvetica', 'bold');
+            doc.text(label, margin, yPosition);
+            doc.setFont('helvetica', 'normal');
+            let textLines = doc.splitTextToSize(value || 'N/A', contentWidth - 50);
+            doc.text(textLines, margin + 50, yPosition);
+            yPosition += Math.max(textLines.length * 4, 6);
+        };
+
+        // Función para agregar sección con título
+        const addSection = (title, items, emptyMessage = "No hay elementos asignados.") => {
+            checkNewPage(20);
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text(title, margin, yPosition);
+            yPosition += 5;
+
+            // Línea divisoria
+            doc.setLineWidth(0.3);
+            doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+
+            // Contenido de la sección
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+            doc.setFont('helvetica', 'normal');
+
+            if (items && items.length > 0) {
+                items.forEach((item, index) => {
+                    let itemText;
+                    if (typeof item === 'string') {
+                        itemText = `${index + 1}. ${item}`;
+                    } else if (item.descripcion) {
+                        itemText = `${index + 1}. ${item.descripcion}`;
+                    } else if (item.nombre) {
+                        itemText = `${index + 1}. ${item.nombre}`;
+                    } else if (item.origen && item.destino) {
+                        itemText = `${index + 1}. ${item.origen.name} -> ${item.destino.name} (${item.tipoRelacion})`;
+                    } else {
+                        itemText = `${index + 1}. ${JSON.stringify(item)}`;
+                    }
+
+                    let textLines = doc.splitTextToSize(itemText, contentWidth);
+                    checkNewPage(textLines.length * 4 + 4);
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 2;
+                });
+            } else {
+                checkNewPage();
+                doc.text(emptyMessage, margin, yPosition);
+                yPosition += 6;
+            }
+            yPosition += 5;
+        };
+
+        // Cargar y agregar logos
+        const logoInformaticaUrl = '/img/logoInformaticaSistemas.png';
+        const logoUMSSUrl = '/img/LogoUMSS.png';
+        const imgInformatica = new Image();
+        const imgUMSS = new Image();
+
+        imgInformatica.crossOrigin = "Anonymous";
+        imgInformatica.src = logoInformaticaUrl;
+        imgUMSS.crossOrigin = "Anonymous";
+        imgUMSS.src = logoUMSSUrl;
+
+        Promise.all([
+            new Promise((resolve, reject) => {
+                imgInformatica.onload = resolve;
+                imgInformatica.onerror = () => resolve(); // Continuar sin logo si falla
+            }),
+            new Promise((resolve, reject) => {
+                imgUMSS.onload = resolve;
+                imgUMSS.onerror = () => resolve(); // Continuar sin logo si falla
+            })
+        ]).then(() => {
+            // Encabezado
+            doc.setFillColor(0, 51, 102);
+            doc.rect(0, 0, pageWidth, 30, 'F');
+
+            // Agregar logos si se cargaron correctamente
+            try {
+                if (imgInformatica.complete && imgInformatica.naturalWidth > 0) {
+                    doc.addImage(imgInformatica, 'PNG', 10, 5, 20, 20);
+                }
+                if (imgUMSS.complete && imgUMSS.naturalWidth > 0) {
+                    doc.addImage(imgUMSS, 'PNG', pageWidth - 30, 5, 20, 20);
+                }
+            } catch (e) {
+                console.warn("Error agregando imágenes: ", e);
+            }
+
+            // Títulos del encabezado
+            doc.setFontSize(16);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.text("PERFIL DE CARGO", pageWidth / 2, 15, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text(cargoData.name || 'Nombre del Cargo', pageWidth / 2, 25, { align: 'center' });
+
+            // Obtener valores de los campos desde el DOM
+            const superior = document.querySelector('.cargo-details p:nth-child(2) span:last-child')?.innerText || 'Director Académico';
+            const dependientes = document.querySelector('.cargo-details p:nth-child(3) span:last-child')?.innerText || 'Ninguno';
+            const clasificacion = document.querySelector('.cargo-details p:nth-child(4) span:last-child')?.innerText || 'Lineal';
+
+            // SECCIÓN 1: INFORMACIÓN GENERAL
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text("1. INFORMACIÓN GENERAL", margin, yPosition);
+            yPosition += 5;
+            doc.setLineWidth(0.3);
+            doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+            doc.setFont('helvetica', 'normal');
+
+            addField("Denominación del Cargo:", cargoData.name);
+            addField("Jefe/Superior:", superior);
+            addField("Cargos Dependientes:", dependientes);
+            addField("Clasificación de Cargo:", clasificacion);
+
+            yPosition += 5;
+
+            // SECCIÓN 2: RESPONSABILIDADES
+            addSection("2. RESPONSABILIDADES", responsabilidadesData, "No hay responsabilidades asignadas.");
+
+            // SECCIÓN 3: RELACIONES INTERNAS
+            addSection("3. RELACIONES INTERNAS", relacionesInternasData, "No tiene relaciones internas definidas.");
+
+            // SECCIÓN 4: RELACIONES EXTERNAS
+            addSection("4. RELACIONES EXTERNAS", relacionesExternasData, "No tiene relaciones externas definidas.");
+
+            // SECCIÓN 5: FUNCIONES Y ACTIVIDADES
+            addSection("5. FUNCIONES Y ACTIVIDADES", funcionesActividadesData, "No hay funciones o actividades asignadas.");
+
+            // SECCIÓN 6: DOCUMENTOS GENERADOS
+            addSection("6. DOCUMENTOS GENERADOS", documentosGeneraData, "No hay documentos generados asignados.");
+
+            // SECCIÓN 7: PERFIL DE CONTRATACIÓN
+            addSection("7. PERFIL DE CONTRATACIÓN", perfilesContratacionData, "No hay items en el perfil de contratación.");
+
+            // SECCIÓN 8: GRADO ACADÉMICO MÍNIMO
+            addSection("8. GRADO ACADÉMICO MÍNIMO", gradoAcademicoMinimoData, "No hay grado académico mínimo asignado.");
+
+            // SECCIÓN 9: OTROS CONOCIMIENTOS RECOMENDABLES
+            addSection("9. OTROS CONOCIMIENTOS RECOMENDABLES", otrosConocimientosData, "No hay otros conocimientos recomendables.");
+
+            // SECCIÓN 10: HABILIDADES Y DESTREZAS
+            addSection("10. HABILIDADES Y DESTREZAS", habilidadesDestrezasData, "No hay habilidades y destrezas asignadas.");
+
+            // Agregar pie de página a todas las páginas
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                addFooter(doc, cargoData.name, i, totalPages);
+            }
+
+            // Guardar el PDF
+            const fileName = `perfil_cargo_${(cargoData.name || 'cargo').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            doc.save(fileName);
+
+        }).catch((error) => {
+            console.error("Error generando PDF: ", error);
+            alert("Error al generar el PDF. Por favor, inténtelo de nuevo.");
+        });
+    }
+</script>
+
+
+<!-- Bootstrap JS (for button functionality if needed) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/OrgChart.js"></script>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

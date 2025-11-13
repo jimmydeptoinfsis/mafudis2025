@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${responsabilidad.id} ? 'Editar Responsabilidad' : 'Nueva Responsabilidad'">Responsabilidad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .responsabilidad-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .responsabilidad-form h1 {
+            color: #87CEEB; /* Celeste */
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .responsabilidad-form label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #555;
+        }
+        .responsabilidad-form textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .responsabilidad-form button {
+            background-color: #87CEEB;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .responsabilidad-form button:hover {
+            background-color: #6bb9d6;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #87CEEB;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h1 th:text="${cargo.id == null} ? 'Crear Nuevo Cargo' : 'Editar Cargo'"></h1>
+
+    <form th:action="@{/cargos}" th:object="${cargo}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Nombre del Empleado</label>
+            <input type="text" class="form-control" id="name" th:field="*{name}" required>
+        </div>
+        <div class="mb-3">
+            <label for="title" class="form-label">Título del Cargo</label>
+            <input type="text" class="form-control" id="title" th:field="*{title}" required>
+        </div>
+        <div class="mb-3">
+            <label for="pid" class="form-label">Cargo Superior (PID)</label>
+            <select class="form-select" id="pid" th:field="*{pid}">
+                <option value="">Ninguno (Raíz)</option>
+                <option th:each="c : ${cargos}" th:value="${c.id}" th:text="${c.name + ' (' + c.title + ')'}" th:selected="${c.id == cargo.pid}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="img" class="form-label">URL de Imagen</label>
+            <input type="text" class="form-control" id="img" th:field="*{img}">
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" th:field="*{email}">
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Teléfono</label>
+            <input type="text" class="form-control" id="phone" th:field="*{phone}">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Descripción</label>
+            <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Etiquetas</label>
+            <div>
+                <th:block th:each="tag : ${tags}">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="tagIds" th:value="${tag.id}" th:id="'tag_' + ${tag.id}"
+                               th:checked="${#lists.contains(cargo.tags.![id], tag.id)}">
+                        <label class="form-check-label" th:for="'tag_' + ${tag.id}" th:text="${tag.name}"></label>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Relaciones Internas</label>
+            <div class="checkbox-group">
+                <th:block th:each="rel : ${allRelacionesInternas}">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="relacionInternaIds"
+                               th:value="${rel.id}"
+                               th:id="'rel_' + ${rel.id}"
+                               th:checked="${#sets.contains(cargo.relacionesInternas.![id], rel.id)}">
+                        <label class="form-check-label" th:for="'rel_' + ${rel.id}" th:text="${rel.nombre}"></label>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a th:href="@{/cargos}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+<div class="mb-3">
+    <label for="unidad" class="form-label">Unidad a la que Pertenece</label>
+    <select class="form-select" id="unidad" th:field="*{unidad}"> <option value="">Seleccione una Unidad</option>
+        <option th:each="u : ${allUnidades}"
+                th:value="${u.id}"
+                th:text="${u.nombreUnidad}"
+                th:selected="${cargo.unidad != null && u.id == cargo.unidad.id}"></option>
+    </select>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

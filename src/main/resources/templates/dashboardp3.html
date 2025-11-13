@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:replace="~{fragments/adm/head-fragment :: head('Panel de Administración')}"></head>
+
+
+<body>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<div th:replace="~{fragments/adm/header-fragment :: header}"></div>
+<!-- Sidebar -->
+<div th:replace="~{fragments/adm/sidebar-fragment :: sidebar}"></div>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Breadcrumb -->
+    <div th:replace="~{fragments/adm/breadcrumb-fragment :: breadcrumb('Dashboard')}"></div>
+
+
+    <!-- Page Content -->
+    <div layout:fragment="content" id="main-content-area">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Bienvenido al Panel de Administración
+                    </div>
+                    <div class="card-body">
+                        <div id="orgchart-container"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/adm/footer-fragment :: footer}"></div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!--<script th:src="@{/js/OrgChart.js}"></script>-->
+<script src="/js/adm-scripts.js"></script>
+<script src="https://cdn.balkan.app/orgchart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var chart = new OrgChart(document.getElementById("orgchart-container"), {
+            template: "ula",
+            enableDragDrop: true,
+            mouseScrool: OrgChart.action.scroll,
+            nodeBinding: {
+                field_0: "name",
+                field_1: "title",
+                img_0: "img"
+            },
+            nodes: [
+                { id: 1, name: "Ana López", title: "Directora", img: "https://balkangraph.com/js/img/1.jpg" },
+                { id: 2, pid: 1, name: "Carlos Pérez", title: "Jefe de Sistemas", img: "https://balkangraph.com/js/img/2.jpg" },
+                { id: 3, pid: 1, name: "María Gómez", title: "Jefa de Investigación", img: "https://balkangraph.com/js/img/3.jpg" },
+                { id: 4, pid: 2, name: "Juan Martínez", title: "Analista de Sistemas", img: "https://balkangraph.com/js/img/4.jpg" },
+                { id: 5, pid: 2, name: "Laura Sánchez", title: "Desarrolladora Senior", img: "https://balkangraph.com/js/img/5.jpg" },
+                { id: 6, pid: 3, name: "Pedro Ramírez", title: "Investigador Principal", img: "https://balkangraph.com/js/img/6.jpg" }
+            ]
+        });
+    });
+</script>
+
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

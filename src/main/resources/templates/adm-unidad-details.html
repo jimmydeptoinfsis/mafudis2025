@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head th:replace="~{base-layout :: head('Detalles de Unidad')}"></head>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+        background-color: #f8f9fa;
+    }
+    .container {
+        max-width: 1200px;
+        margin-top: 20px;
+    }
+    .unidad-details h2 {
+        color: #003366;
+        border-bottom: 2px solid #003366;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+    }
+    .unidad-details p {
+        margin-bottom: 10px;
+    }
+    .unidad-details p span {
+        font-weight: bold;
+    }
+    .btn {
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    .section {
+        margin-bottom: 30px;
+    }
+    .no-data {
+        color: #6c757d;
+        font-style: italic;
+    }
+</style>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+    }
+</style>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<header th:replace="~{base-layout :: header}"></header>
+
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br>
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/dashboard">
+                        <i class="fas fa-home me-1"></i>Inicio
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="/organigrama13">
+                        Organigrama de unidades
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" layout:fragment="breadcrumb">
+                    Detalle de Unidad
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Detalles de unidad
+                    </div>
+                    <div class="card-body">
+                        <div class="unidad-details">
+
+                            <div class="section">
+                                <p><span>Nombre:</span> <span th:text="${unidad.nombreUnidad}">Sin nombre </span><!--<button class="btn btn-outline-primary btn-sm ms-2">Modificar</button>--></p>
+
+                                <p><span>Tipo de Unidad:</span> <span th:text="${tipoUnidad}">N/A</span><a th:href="@{/adm/unidades/{id}/edit-tipo(id=${unidad.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></p>
+                                <p><span>Clasificación:</span> <span th:text="${clasificacion}">N/A</span><a th:href="@{/adm/unidades/{id}/edit-clasificacion(id=${unidad.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></p>
+                                <p><span>Nivel Jerárquico:</span> <span th:text="${nivelJerarquico}">N/A</span><a th:href="@{/adm/unidades/{id}/edit-nivel-jerarquico(id=${unidad.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></p>
+                                <p><span>Dependencia:</span> <span th:text="${dependencia}">N/A</span><a th:href="@{/adm/unidades/{id}/edit-dependencia(id=${unidad.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></p>
+                                <p><span>Cargos Asociados:</span> <span th:text="${cargos}">Ninguno</span><a th:href="@{/adm/unidades/{id}/cargos(id=${unidad.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a></p>
+                            </div>
+
+                            <!-- Hierarchy Section (Placeholder) -->
+                            <h2>Jerarquía de la Unidad <!--<button class="btn btn-outline-primary btn-sm ms-2">Modificar</button>--></h2>
+                            <div class="section">
+                                <div th:if="${unidad.dependencia} != null">
+                                    <p>Unidad Superior: <span th:text="${dependencia}">N/A</span></p>
+                                </div>
+                                <div th:unless="${unidad.dependencia} != null">
+                                    <p class="no-data">No hay jerarquía definida.</p>
+                                </div>
+                            </div>
+
+                            <!-- Objectives Section -->
+
+                            <h2>
+                                Objetivos
+                                <a th:href="@{/objetivos-unidad/adm/unidad/{unidadId}(unidadId=${unidad.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a>
+                            </h2>
+                            <div class="section">
+                                <ul th:if="${!objetivos.isEmpty()}">
+                                    <li th:each="objetivo : ${objetivos}" th:text="${objetivo.descripcion}">Objetivo</li>
+                                </ul>
+                                <p th:if="${objetivos.isEmpty()}" class="no-data">No hay objetivos asignados.</p>
+                            </div>
+
+                            <h2>
+                                Funciones Generales
+                                <a th:href="@{/funciones-generales-unidad/adm/unidad/{unidadId}(unidadId=${unidad.id})}" class="btn btn-outline-primary btn-sm ms-2">Modificar</a>
+                            </h2>
+                            <div class="section">
+                                <ul th:if="${!funciones.isEmpty()}">
+                                    <li th:each="funcion : ${funciones}" th:text="${funcion.descripcion}">Función</li>
+                                </ul>
+                                <p th:if="${funciones.isEmpty()}" class="no-data">No hay funciones generales asignadas.</p>
+                            </div>
+
+                            <!-- Coordination Relationships Section -->
+                            <h2>Relaciones de Coordinación Internas <!--<button class="btn btn-outline-primary btn-sm ms-2">Modificar</button>--></h2>
+                            <div class="section">
+                                <ul th:if="${unidad.cargos} != null and ${unidad.cargos.size()} > 0">
+                                    <li th:each="cargo : ${unidad.cargos}">
+                                        <span th:text="${cargo.name} + ': '">Sin nombre: </span>
+                                        <ul th:if="${cargoRelacionesInternas[cargo.id]} != null and ${cargoRelacionesInternas[cargo.id].size()} > 0">
+                                            <li th:each="relacion : ${cargoRelacionesInternas[cargo.id]}" th:text="${relacion.destino.name}"></li>
+                                        </ul>
+                                        <p th:unless="${cargoRelacionesInternas[cargo.id]} != null and ${cargoRelacionesInternas[cargo.id].size()} > 0" class="no-data">Ninguna</p>
+                                    </li>
+                                </ul>
+                                <p th:unless="${unidad.cargos} != null and ${unidad.cargos.size()} > 0" class="no-data">No hay relaciones de coordinación internas definidas.</p>
+                            </div>
+
+                            <h2>Relaciones de Coordinación Externas <!--<button class="btn btn-outline-primary btn-sm ms-2">Modificar</button>--></h2>
+                            <div class="section">
+                                <ul th:if="${unidad.cargos} != null and ${unidad.cargos.size()} > 0">
+                                    <li th:each="cargo : ${unidad.cargos}">
+                                        <span th:text="${cargo.name} + ': '">Sin nombre: </span>
+                                        <ul th:if="${cargoRelacionesExternas[cargo.id]} != null and ${cargoRelacionesExternas[cargo.id].size()} > 0">
+                                            <li th:each="relacion : ${cargoRelacionesExternas[cargo.id]}" th:text="${relacion.nombre}"></li>
+                                        </ul>
+                                        <p th:unless="${cargoRelacionesExternas[cargo.id]} != null and ${cargoRelacionesExternas[cargo.id].size()} > 0" class="no-data">Ninguna</p>
+                                    </li>
+                                </ul>
+                                <p th:unless="${unidad.cargos} != null and ${unidad.cargos.size()} > 0" class="no-data">No hay relaciones de coordinación externas definidas.</p>
+                            </div>
+
+
+                            <!-- Action Buttons -->
+                            <div class="section">
+                                <a th:href="@{/organigrama13}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver al Organigrama de Unidades</a>
+                                <button onclick="generatePDF()" class="btn btn-danger">
+                                    <i class="fas fa-file-pdf"></i> Descargar Reporte PDF</button>
+                                <!--<a th:href="@{/objetivos-unidad/unidad/{unidadId}(unidadId=${unidad.id})}" class="btn btn-secondary">Gestionar Objetivos</a>
+                                <a th:href="@{/funciones-generales-unidad/unidad/{unidadId}(unidadId=${unidad.id})}" class="btn btn-secondary">Administrar Funciones Generales de Unidad</a>
+
+                                <a th:href="@{/tipos-unidad/list}" class="btn btn-primary">Gestionar Tipos de Unidad</a>
+                                <a th:href="@{/clasificaciones-unidad/list}" class="btn btn-primary">Gestionar Clasificaciones de Unidad</a>
+                                <a th:href="@{/niveles-jerarquicos/list}" class="btn btn-primary">Gestionar Niveles Jerarquicos</a>
+
+                                <a th:href="@{/unidades/{id}/edit-tipo(id=${unidad.id})}" class="btn btn-primary">Seleccionar Tipos de Unidad</a>
+                                <a th:href="@{/unidades/{id}/edit-clasificacion(id=${unidad.id})}" class="btn btn-primary">Elegir/Modificar Clasificación de Unidad</a>
+                                <a th:href="@{/unidades/{id}/edit-nivel-jerarquico(id=${unidad.id})}" class="btn btn-primary">Elegir/Modificar Nivel Jerárquico</a>
+
+                                <a th:href="@{/unidades/{id}/edit-dependencia(id=${unidad.id})}" class="btn btn-primary">Elegir/Modificar Dependencia</a>
+                                <a th:href="@{/dependencias/list}" class="btn btn-info">Gestionar Dependencias</a>
+                                <a th:href="@{/unidades/{id}/cargos(id=${unidad.id})}" class="btn btn-primary">Gestionar Cargos</a>
+
+                                <a th:href="@{/unidades/{id}/relaciones-externas(id=${unidad.id})}" class="btn btn-secondary">Administrar Relaciones Externas</a>
+                                <a th:href="@{/unidades/{id}/funciones(id=${unidad.id})}" class="btn btn-secondary">Gestionar Funciones y Actividades</a>
+                                <a th:href="@{/unidades/{id}/documentos(id=${unidad.id})}" class="btn btn-secondary">Gestionar Documentos</a>
+                                <a th:href="@{/unidades/{id}/perfil-contratacion(id=${unidad.id})}" class="btn btn-secondary">Gestionar Perfil de Contratación</a>
+                                <a th:href="@{/unidades/{id}/habilidades(id=${unidad.id})}" class="btn btn-secondary">Gestionar Habilidades y Destrezas</a>
+                                <a th:href="@{/unidades/{id}/grados-academicos(id=${unidad.id})}" class="btn btn-secondary">Gestionar Grados Académicos</a>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+
+
+
+
+<!-- PDF Generation Script -->
+<script th:inline="javascript">
+    const unidadData = /*[[${unidad}]]*/ {};
+    const tipoUnidadData = /*[[${tipoUnidad}]]*/ "N/A";
+    const clasificacionData = /*[[${clasificacion}]]*/ "N/A";
+    const nivelJerarquicoData = /*[[${nivelJerarquico}]]*/ "N/A";
+    const dependenciaData = /*[[${dependencia}]]*/ "N/A";
+    const cargosData = /*[[${cargos}]]*/ "";
+    const objetivosData = /*[[${unidad.objetivos}]]*/ [];
+    const funcionesGeneralesData = /*[[${unidad.funcionesGenerales}]]*/ [];
+    const coordinaConData = /*[[${unidad.coordinaCon}]]*/ [];
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 15;
+        const contentWidth = pageWidth - 2 * margin;
+        let yPosition = 40;
+
+        // Function to add footer to a specific page
+        const addFooter = (doc, unidadName, currentPage, totalPages) => {
+            doc.setPage(currentPage);
+            doc.setFillColor(0, 51, 102); // Dark blue (#003366)
+            doc.rect(0, pageHeight - 15, pageWidth, 10, 'F');
+            doc.setDrawColor(0, 51, 102);
+            doc.setLineWidth(0.2);
+            doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+            doc.setFontSize(8);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Unidad: ${unidadName || 'Sin nombre'}`, margin, pageHeight - 8);
+            doc.text(`Página ${currentPage} de ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+        };
+
+        const logoInformaticaUrl = '/img/logoInformaticaSistemas.png';
+        const imgInformatica = new Image();
+        imgInformatica.crossOrigin = "Anonymous";
+        imgInformatica.src = logoInformaticaUrl;
+
+        const logoUMSSUrl = '/img/LogoUMSS.png';
+        const imgUMSS = new Image();
+        imgUMSS.crossOrigin = "Anonymous";
+        imgUMSS.src = logoUMSSUrl;
+
+        Promise.all([
+            new Promise((resolve, reject) => { imgInformatica.onload = resolve; imgInformatica.onerror = reject; }),
+            new Promise((resolve, reject) => { imgUMSS.onload = resolve; imgUMSS.onerror = reject; })
+        ]).then(() => {
+            // Header
+            doc.setFillColor(0, 51, 102);
+            doc.rect(0, 0, pageWidth, 30, 'F');
+            try {
+                doc.addImage(imgInformatica, 'PNG', 10, 5, 20, 20);
+                doc.addImage(imgUMSS, 'PNG', pageWidth - 30, 5, 20, 20);
+            } catch (e) { console.error("Error adding images: ", e); }
+            doc.setFontSize(16);
+            doc.setTextColor(255, 255, 255);
+            doc.text("PERFIL DE UNIDAD", pageWidth / 2, 15, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text(unidadData.nombreUnidad || 'Nombre de la Unidad', pageWidth / 2, 25, { align: 'center' });
+
+            // Section 1: General Information
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.text("1. INFORMACIÓN GENERAL", margin, yPosition);
+            yPosition += 5;
+            doc.setLineWidth(0.3);
+            doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+            doc.setFont('helvetica', 'normal');
+
+            const addField = (label, value) => {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.setFont('helvetica', 'bold');
+                doc.text(label, margin, yPosition);
+                doc.setFont('helvetica', 'normal');
+                let textLines = doc.splitTextToSize(value || '---', contentWidth - 45);
+                doc.text(textLines, margin + 50, yPosition);
+                yPosition += (textLines.length * 4) + 4;
+            };
+
+            addField("Nombre de la Unidad:", unidadData.nombreUnidad);
+            addField("Tipo de Unidad:", tipoUnidadData);
+            addField("Clasificación:", clasificacionData);
+            addField("Nivel Jerárquico:", nivelJerarquicoData);
+            addField("Dependencia:", dependenciaData);
+            addField("Cargos Asociados:", cargosData);
+
+            // Section 2: Objectives
+            yPosition += 5;
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.text("2. OBJETIVOS", margin, yPosition);
+            yPosition += 5;
+            doc.setLineWidth(0.3);
+            doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+            doc.setFont('helvetica', 'normal');
+            if (objetivosData && objetivosData.length > 0) {
+                objetivosData.forEach((obj, index) => {
+                    const objText = `${index + 1}. ${obj.descripcion}`;
+                    let textLines = doc.splitTextToSize(objText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay objetivos asignados.", margin, yPosition);
+                yPosition += 10;
+            }
+
+            // Section 3: General Functions
+            yPosition += 5;
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.text("3. FUNCIONES GENERALES", margin, yPosition);
+            yPosition += 5;
+            doc.setLineWidth(0.3);
+            doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+            doc.setFont('helvetica', 'normal');
+            if (funcionesGeneralesData && funcionesGeneralesData.length > 0) {
+                funcionesGeneralesData.forEach((func, index) => {
+                    const funcText = `${index + 1}. ${func.descripcion}`;
+                    let textLines = doc.splitTextToSize(funcText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay funciones generales asignadas.", margin, yPosition);
+                yPosition += 10;
+            }
+
+            // Section 4: Coordination Relationships
+            yPosition += 5;
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.text("4. RELACIONES DE COORDINACIÓN", margin, yPosition);
+            yPosition += 5;
+            doc.setLineWidth(0.3);
+            doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+            doc.setFont('helvetica', 'normal');
+            if (coordinaConData && coordinaConData.length > 0) {
+                coordinaConData.forEach((coord, index) => {
+                    const coordText = `${index + 1}. ${coord.nombreUnidad}`;
+                    let textLines = doc.splitTextToSize(coordText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.text("No hay relaciones de coordinación definidas.", margin, yPosition);
+                yPosition += 10;
+            }
+
+            // Add footer to all pages
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                addFooter(doc, unidadData.nombreUnidad, i, totalPages);
+            }
+
+            // Save the PDF
+            doc.save(`perfil_unidad_${unidadData.nombreUnidad.replace(/ /g, '_')}.pdf`);
+        }).catch((error) => {
+            console.error("Error loading images for PDF: ", error);
+            alert("Error al cargar imágenes para el PDF. Se generará sin logos.");
+        });
+    }
+</script>
+
+
+
+
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+
+<!-- Head -->
+<head th:replace="~{base-layout :: head('Gestión Relaciones Externas')}"></head>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+    }
+</style>
+<body>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br>
+    <!-- Breadcrumb -->
+
+    <div class="breadcrumb-container mb-3">
+        <div th:replace="~{fragments/_breadcrumbs :: breadcrumbs}"></div>
+    </div>
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span th:text="${isNew} ? 'Agregar nueva relación externa' : 'Editar relación externa'"></span>
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" name="cargoId" th:value="${cargoId}" />
+                        <!--<h2 th:text="${isNew} ? 'Nueva Relación Externa' : 'Editar Relación Externa'">Relación Externa</h2>-->
+
+                        <form th:action="@{/relaciones-externas/adm/save}" th:object="${relacionExterna}" method="post">
+                            <input type="hidden" th:field="*{id}" />
+                            <input type="hidden" name="cargoId" th:value="${cargoId}" />
+
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label">Nombre:</label>
+                                <textarea class="form-control" id="nombre" th:field="*{nombre}" rows="3" required></textarea>
+                                <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Guardar Relacion Externa</button>
+
+                            <!-- 3. Modificar el enlace "Cancelar" para considerar cargoId -->
+                            <a th:href="@{${backUrl}}"
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar</a>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+
+
+<div class="container">
+    <!-- Unit Details Section -->
+
+</div>
+
+
+
+<!-- Bootstrap JS (for button functionality if needed) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

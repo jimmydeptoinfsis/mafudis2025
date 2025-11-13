@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!-- Head -->
+<head th:replace="~{base-layout :: head('Dashboard')}"></head>
+
+<body>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br>
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/dashboard">
+                        <i class="fas fa-home me-1"></i>Inicio
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" layout:fragment="breadcrumb">
+                    Organigrama de unidades
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Organigrama de Unidades
+                    </div>
+                    <div class="card-body">
+                        <div id="tree"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container-fluid">
+        <p class="mb-0">
+            &copy; 2025 Universidad Mayor de San Simón - Sistema de Gestión Administrativa
+        </p>
+    </div>
+</footer>
+
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+<script src="/js/OrgChart.js"></script>
+
+<script th:inline="javascript">
+
+    // Plantilla personalizada con bordes redondeados y textos centrados
+    OrgChart.templates.disco = Object.assign({}, OrgChart.templates.ula);
+    OrgChart.templates.disco.size = [255, 85];
+
+
+    OrgChart.templates.disco.node =
+        `<rect x="0" y="0" height="{h}" width="{w}" rx="15" ry="15" fill="#004883" stroke-width="0" stroke="#e30613"></rect>
+         <line x1="0" y1="2.5" x2="{w}" y2="2.5" stroke-width="0" stroke="#004883" stroke-linecap="round"></line>`;
+
+
+    OrgChart.templates.disco.field_0 =
+        `<text style="{style0}" font-weight="bold" fill="#fff" x="127.5" y="26" text-anchor="middle">{val}</text>`;
+
+    OrgChart.templates.disco.field_1 =
+        `<text style="{style1}" font-weight="bold" fill="#fff" x="127.5" y="46" text-anchor="middle">{val}</text>`;
+
+    OrgChart.templates.disco.field_2 =
+        `<text style="{style2}" font-weight="bold" fill="#fff" x="127.5" y="66" text-anchor="middle">{val}</text>`;
+
+
+    window.onload = function () {
+        // Template para "assistant" (maintained for consistency, though units may not use it directly)
+        OrgChart.templates.assistantTemplate = Object.assign({}, OrgChart.templates.ana);
+
+        // Obtener los datos inyectados desde el controlador
+        var unidades = /*[[${unidades}]]*/ [];
+
+        // Procesar los datos para ajustar el formato de "tags" (derived from associated cargos)
+        if (unidades && unidades.length > 0) {
+            unidades.forEach(unidad => {
+                // Derive tags from cargos associated with the unit
+                unidad.tags = unidad.cargos ?
+                    [...new Set(unidad.cargos.flatMap(cargo =>
+                        cargo.tags ? cargo.tags.map(tag => tag.name) : []
+                    ))] : [];
+            });
+        }
+
+        // Log for debugging
+        console.log("Unidades received:", unidades);
+
+        // Configuración del organigrama
+        var chart = new OrgChart(document.getElementById("tree"), {
+            template: "disco",
+            nodeBinding: {
+                field_1: "nombreUnidad",
+                //field_0: "tipoUnidadName"
+            },
+            scaleInitial: 1,
+            enablePan: true,
+            enableZoom: true,
+            enableEdit: false,
+            nodeMouseClick: OrgChart.action.none,
+            menu: {},
+            enableDragDrop: false,
+            enableSearch: false,
+            showMenuButton: false,
+            tags: {
+                "assistant": { template: "assistantTemplate" },
+                "subAssistant": { template: "subAssistantTemplate" }
+            },
+            nodes: unidades
+        });
+
+        // Evento de clic en un nodo para redirigir a la página de detalles
+        chart.on('click', function(sender, args) {
+            var node = args.node;
+            if (node) {
+                window.location.href = '/adm/unidades/details/' + node.id;
+            }
+            return false; // Evitar comportamiento por defecto
+        });
+    };
+</script>
+
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

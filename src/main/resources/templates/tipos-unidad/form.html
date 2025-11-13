@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin_layout}">
+
+<head>
+    <title th:text="${tipoUnidad.id == null ? 'Nuevo Tipo de Unidad' : 'Editar Tipo de Unidad'}"></title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <h1 class="h2 mb-4" th:text="${tipoUnidad.id == null ? 'Agregar Nuevo Tipo de Unidad' : 'Editar Tipo de Unidad'}"></h1>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-pencil-alt fa-fw me-2"></i>Formulario de Tipo de Unidad
+        </div>
+        <div class="card-body">
+            <div class="card-body">
+                <form th:object="${tipoUnidad}"
+                      th:action="${tipoUnidad.id == null} ? @{/tipos-unidad/save} : @{/tipos-unidad/adm/edit/{id}(id=${tipoUnidad.id})}"
+                      method="post">
+
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del Tipo de Unidad</label>
+                        <input type="text" id="nombre" class="form-control" th:field="*{nombre}" required>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <a th:href="@{/tipos-unidad/adm/list}" class="btn btn-secondary me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <span th:text="${tipoUnidad.id == null ? 'Guardar' : 'Actualizar'}"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

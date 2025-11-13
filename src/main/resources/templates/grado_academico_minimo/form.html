@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${gradoAcademicoMinimo.id} ? 'Editar Grado Académico Mínimo' : 'Nuevo Grado Académico Mínimo'">Grado Académico Mínimo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .grado-academico-minimo-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .grado-academico-minimo-form h1 {
+            color: #87CEEB;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .grado-academico-minimo-form label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #555;
+        }
+        .grado-academico-minimo-form textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .grado-academico-minimo-form button {
+            background-color: #87CEEB;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .grado-academico-minimo-form button:hover {
+            background-color: #6bb9d6;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #87CEEB;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="grado-academico-minimo-form">
+    <h1 th:text="${gradoAcademicoMinimo.id} ? 'Editar Grado Académico Mínimo' : 'Nuevo Grado Académico Mínimo'">Grado Académico Mínimo</h1>
+    <form th:action="@{${formAction}}"
+          th:object="${gradoAcademicoMinimo}"
+          method="post">
+        <label for="descripcion">Descripción:</label>
+        <textarea id="descripcion" th:field="*{descripcion}" rows="5" required></textarea>
+        <button type="submit">Guardar</button>
+    </form>
+    <a th:href="@{/grado-academico-minimo/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Volver</a>
+</div>
+</body>
+</html>

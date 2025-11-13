@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema MAFUDIS - Departamento de Informática y Sistemas - UMSS</title>
+    <link rel="icon" th:href="@{/img/LogoMafudis.png}" type="image/png">
+    <link rel="apple-touch-icon" th:href="@{/img/LogoMafudis.png}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        /* Estilos adicionales para los modales */
+        #unidadModal .modal-content, #cargoModal .modal-content {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        #unidadModal .modal-header, #cargoModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            padding: 20px 25px;
+        }
+
+        #unidadModal .modal-body, #cargoModal .modal-body {
+            max-height: 70vh;
+        }
+
+        #unidadModal .section-title, #cargoModal .section-title {
+            color: #003366;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            margin-top: 25px;
+        }
+
+        #unidadModal .section-title:first-child, #cargoModal .section-title:first-child {
+            margin-top: 0;
+        }
+
+        #unidadModal .info-card, #cargoModal .info-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        #unidadModal .info-row, #cargoModal .info-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        #unidadModal .info-row:last-child, #cargoModal .info-row:last-child {
+            border-bottom: none;
+        }
+
+        #unidadModal .info-label, #cargoModal .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 160px;
+        }
+
+        #unidadModal .info-value, #cargoModal .info-value {
+            color: #212529;
+            flex: 1;
+        }
+
+        #unidadModal .list-styled, #cargoModal .list-styled {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        #unidadModal .list-styled li, #cargoModal .list-styled li {
+            padding: 10px 15px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #003366;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        #unidadModal .list-styled li strong, #cargoModal .list-styled li strong {
+            color: #003366;
+        }
+
+        #unidadModal .no-data, #cargoModal .no-data {
+            color: #6c757d;
+            font-style: italic;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        #unidadModal .badge-tipo, #cargoModal .badge-tipo {
+            background: linear-gradient(135deg, #003f7f, #002856);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+    </style>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            color: #212529;
+        }
+
+        /* Animación de entrada */
+        @keyframes fadeIn-up {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-on-scroll { opacity: 0; }
+        .animated { animation: fadeIn-up 0.8s ease-out forwards; }
+
+        /* Degradado del texto del héroe */
+        .hero-text-gradient {
+            background: linear-gradient(45deg, #0d47a1, #1976d2, #42a5f5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        /* Estilo del header al hacer scroll */
+        .header-scrolled {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        section {
+            padding: 5rem 0;
+        }
+
+        @media (min-width: 768px) {
+            section {
+                padding: 7rem 0;
+            }
+        }
+
+        /* Estilo para el contenedor de la animación 3D */
+        #three-js-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            max-height: 450px;
+            cursor: grab;
+            display: block;
+        }
+
+        #organigrama-unidades-container {
+            width: 100%;
+            height: 600px; /* Altura fija para el organigrama */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+        }
+        .boc-search {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<header id="header" class="fixed-top transition-all duration-300">
+    <nav class="navbar navbar-expand-md navbar-light">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#inicio">
+                <img th:src="@{/img/logoInformaticaSistemas.png}" alt="Logo Depto. Informática y Sistemas" style="height: 3rem; width: 3rem; object-fit: contain;">
+                <span class="ms-3 fs-5 fw-bold text-primary d-none d-sm-block">Departamento de Informática y Sistemas</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav" aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="main-nav">
+                <ul class="navbar-nav ms-auto mb-2 mb-md-0">
+                    <li class="nav-item"><a class="nav-link" href="#inicio">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#estructura-organizacional">Estructura Organizacional</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#organigrama-unidades">Unidades</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#organigrama-cargos">Cargos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#acerca-de">Acerca de</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+                </ul>
+
+                <div class="ms-md-3">
+                    <!-- Botón de Iniciar Sesión (solo visible si NO está autenticado) -->
+                    <a sec:authorize="!isAuthenticated()" href="/login" class="btn btn-primary btn-sm">
+                        <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
+                    </a>
+
+                    <!-- Botón de Cerrar Sesión (solo visible si está autenticado) -->
+                    <form sec:authorize="isAuthenticated()" th:action="@{/perform_logout}" method="post" class="d-inline m-0">
+                        <button class="btn btn-danger btn-sm" type="submit">
+                            <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section id="inicio" class="min-vh-100 d-flex align-items-center bg-white pt-5">
+        <div class="container">
+            <div class="row align-items-center justify-content-between g-5">
+                <div class="col-md-6 text-center text-md-start animate-on-scroll">
+                    <h1 class="display-4 fw-bolder lh-tight mb-3 hero-text-gradient">Sistema MAFUDIS</h1>
+                    <h2 class="display-5 fw-bolder lh-tight mb-4 hero-text-gradient">Manual de funciones para el Departamento de Informática y Sistemas</h2>
+                    <p class="lead text-muted mb-4">
+                        Herramienta digital para la gestión, consulta y actualización de las funciones de autoridades, personal docente, administrativo y auxiliares del Departamento de Informática y Sistemas.
+                    </p>
+                    <a href="#estructura-organizacional" class="btn btn-primary btn-lg rounded-pill shadow-sm px-4 py-2 fw-bold">
+                        Estructura Organizacional
+                    </a>
+                </div>
+                <div class="col-md-6 animate-on-scroll" style="animation-delay: 0.2s;">
+                    <div id="three-js-container">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="estructura-organizacional" class="bg-light">
+        <div class="container">
+            <div class="text-center mb-5 animate-on-scroll">
+                <h2 class="display-5 fw-bold mb-3">Estructura Organizacional</h2>
+                <p class="lead text-muted mx-auto" style="max-width: 45rem;">
+                    El Departamento de Informática y Sistemas cuenta con una estructura organizativa que integra tanto las unidades académicas y de apoyo, como los cargos que conforman su funcionamiento institucional. MAFUDIS permite visualizar esta estructura mediante dos perspectivas complementarias: el organigrama por unidades y el organigrama por cargos.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 animate-on-scroll">
+                    <div class="card h-100 p-4 border-0 shadow-sm hover-shadow">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <svg class="w-12 h-12 text-primary bg-primary-subtle p-2 rounded-circle" style="width: 3rem; height: 3rem;"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M3 21h18M9 8h6m-6 4h6m-9 9V3h12v18" />
+                                </svg>
+                            </div>
+                            <h3 class="h4 fw-bold mb-3">Organigrama por Unidades</h3>
+                            <p class="text-muted">
+                                El organigrama por unidades muestra la distribución institucional del departamento en áreas funcionales y académicas, tales como Jefatura de Departamento, Dirección de Ingeniería Informàtica y Dirección de Ingeniería de Sistemas. Esta vista permite comprender cómo se componen diferentes unidades que integran el departamento.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 animate-on-scroll" style="animation-delay: 0.2s;">
+                    <div class="card h-100 p-4 border-0 shadow-sm hover-shadow">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <svg class="w-12 h-12 text-primary bg-primary-subtle p-2 rounded-circle" style="width: 3rem; height: 3rem;"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M17 20h5v-2a3 3 0 00-3-3h-2M9 20H4v-2a3 3 0 013-3h2m6-3a3 3 0 100-6 3 3 0 000 6zm-6 0a3 3 0 100-6 3 3 0 000 6z" />
+                                </svg>
+                            </div>
+                            <h3 class="h4 fw-bold mb-3">Organigrama por Cargos</h3>
+                            <p class="text-muted">
+                                El organigrama por cargos detalla la estructura interna en función de los puestos y funciones que desempeña el personal docente, administrativo y técnico. Este enfoque permite identificar los niveles jerárquicos, responsabilidades y relaciones de dependencia entre los distintos cargos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="organigrama-unidades" class="bg-white">
+        <div class="container">
+            <div class="text-center mb-5 animate-on-scroll">
+                <h2 class="display-5 fw-bold mb-3">Organigrama de Unidades</h2>
+                <p class="lead text-muted mx-auto" style="max-width: 45rem;">
+                    Estructura jerárquica del Departamento de Informática y Sistemas. Haz clic en una unidad para ver más detalles.
+                </p>
+            </div>
+            <div id="organigrama-unidades-container" class="animate-on-scroll" style="animation-delay: 0.2s;">
+            </div>
+        </div>
+    </section>
+
+    <section id="organigrama-cargos" class="bg-light">
+        <div class="container">
+            <div class="text-center mb-5 animate-on-scroll">
+                <h2 class="display-5 fw-bold mb-3">Organigrama de Cargos</h2>
+                <p class="lead text-muted mx-auto" style="max-width: 45rem;">
+                    Composición de cargos del Departamento. Haz clic en un cargo para ver sus funciones.
+                </p>
+            </div>
+            <div id="organigrama-cargos-container" class="animate-on-scroll" style="animation-delay: 0.2s;">
+            </div>
+        </div>
+    </section>
+
+    <section id="acerca-de" class="bg-white">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 animate-on-scroll">
+                    <img th:src="@{/img/logoIngenieriaInformatica.jpg}" alt="Equipo trabajando en un proyecto"
+                         class="bg-white rounded-circle p-1"
+                         style="width: 20%; height: auto;">
+
+                    <img th:src="@{/img/logoInformaticaSistemas.png}" alt="Equipo trabajando en un proyecto"
+                         class="bg-white rounded-circle p-1">
+
+                    <img th:src="@{/img/logoIngenieriaSistemas.png}" alt="Equipo trabajando en un proyecto"
+                         class="bg-white rounded-circle p-1"
+                         style="width: 20%; height: auto;">
+                </div>
+                <div class="col-lg-6 text-center text-lg-start animate-on-scroll" style="animation-delay: 0.2s;">
+                    <h2 class="display-5 fw-bold mb-4">Nuestra Misión y Visión</h2>
+                    <div>
+                        <h4 class="h5 fw-semibold text-primary mb-2">Misión</h4>
+                        <p class="text-muted">
+                            Formar profesionales competitivos en el área de informática, con principios éticos, conciencia social; que lideren soluciones tecnológicas, promoviendo el desarrollo y la innovación, con capacidad de generar conocimiento científico y tecnológico para atender las demandas locales y globales.
+                        </p>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="h5 fw-semibold text-primary mb-2">Visión</h4>
+                        <p class="text-muted">
+                            Constituirse en una unidad de excelencia para la administración de recursos que contribuya al desarrollo de las carreras de Ingeniería Informática e Ingeniería de Sistemas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer id="contacto" class="bg-dark text-white pt-5 pb-4">
+    <div class="container">
+        <div class="row g-4 mb-4 text-center text-md-start">
+            <div class="col-lg-5 col-md-12">
+                <a href="#inicio" class="d-flex align-items-center justify-content-center justify-content-md-start text-decoration-none text-white mb-3">
+                    <img th:src="@{/img/logoInformaticaSistemas.png}"  alt="Logo Depto. Informática y Sistemas" class="bg-white rounded-circle p-1" style="height: 3rem; width: 3rem;">
+                    <span class="fs-5 fw-bold ms-3">Departamento de Informática y Sistemas UMSS</span>
+                </a>
+                <p class="text-white-50">
+                    Innovación, conocimiento y futuro. Comprometidos con la excelencia educativa en el corazón de Bolivia.
+                </p>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5 class="fw-semibold mb-3">Enlaces</h5>
+                <ul class="list-unstyled">
+                    <li><a href="https://www.umss.edu.bo/" target="_blank" class="text-white-50 text-decoration-none hover-link">Portal UMSS</a></li>
+                    <li><a href="https://websis.umss.edu.bo/" target="_blank" class="text-white-50 text-decoration-none hover-link">WebSISS</a></li>
+                    <li><a href="https://fcyt.umss.edu.bo/" target="_blank" class="text-white-50 text-decoration-none hover-link">Facultad de Ciencias y Tecnología</a></li>
+                    <li><a href="https://cs.umss.edu.bo/" target="_blank" class="text-white-50 text-decoration-none hover-link">Departamento de Informática y Sistemas(Página Oficial)</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <h5 class="fw-semibold mb-3">Contacto</h5>
+                <ul class="list-unstyled text-white-50">
+
+                    <li class="d-flex align-items-center justify-content-center justify-content-md-start mb-2">
+                        <svg class="w-5 h-5 me-2" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Campus Central, Cochabamba</span>
+                    </li>
+
+                    <li class="d-flex align-items-center justify-content-center justify-content-md-start mb-2">
+                        <svg class="w-5 h-5 me-2" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                        </svg>
+                        <span>
+        <strong>Departamento de Informática y Sistemas</strong><br>
+        <a href="mailto:departamento.inf-sis@fcyt.umss.edu.bo" class="text-white-50 text-decoration-none">
+          departamento.inf-sis@fcyt.umss.edu.bo
+        </a>
+      </span>
+                    </li>
+
+                    <li class="d-flex align-items-center justify-content-center justify-content-md-start mb-2">
+                        <svg class="w-5 h-5 me-2" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                        </svg>
+                        <span>
+        <strong>Dirección de Ingeniería Informática</strong><br>
+        <a href="mailto:dir.inf@umss.edu.bo" class="text-white-50 text-decoration-none">
+          dir.inf@umss.edu.bo
+        </a>
+      </span>
+                    </li>
+
+                    <li class="d-flex align-items-center justify-content-center justify-content-md-start">
+                        <svg class="w-5 h-5 me-2" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                        </svg>
+                        <span>
+        <strong>Dirección de Ingeniería de Sistemas</strong><br>
+        <a href="mailto:direccion.sistemas@fcyt.umss.edu.bo" class="text-white-50 text-decoration-none">
+          direccion.sistemas@fcyt.umss.edu.bo
+        </a>
+      </span>
+                    </li>
+
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="border-top border-secondary pt-4 mt-4 text-center text-white-50">
+            <p class="small">&copy; <span id="current-year"></span> Departamento de Informática y Sistemas, UMSS. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<div class="modal fade" id="login-modal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-3">
+            <div class="modal-header border-0">
+                <h5 class="modal-title w-100 text-center fw-bold fs-4" id="loginModalLabel">Iniciar Sesión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center text-muted mb-4">Accede a tu cuenta de administración.</p>
+                <form>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email" placeholder="tu.correo@email.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password" placeholder="********">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3 py-2 fw-bold">Ingresar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="unidadModal" tabindex="-1" aria-labelledby="unidadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient text-white" style="background: linear-gradient(135deg, #003f7f 0%, #002856 100%);">
+                <h5 class="modal-title fw-bold" id="unidadModalLabel">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Detalles de la Unidad
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="unidadModalBody" style="background-color: #f8f9fa;">
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-danger" onclick="generateModalPDF()">
+                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="/js/OrgChart.js"></script>
+<div class="modal fade" id="cargoModal" tabindex="-1" aria-labelledby="cargoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient text-white" style="background: linear-gradient(135deg, #003f7f 0%, #002856 100%);">
+                <h5 class="modal-title fw-bold" id="cargoModalLabel">
+                    <i class="fas fa-user-tie me-2"></i>
+                    Detalles del Cargo
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="cargoModalBody" style="background-color: #f8f9fa;">
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-danger" onclick="generateCargoPDF()">
+                    <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ... (Tu script existente para el header, animaciones, y la animación 3D va aquí) ...
+        initThreeJSAnimation();
+
+
+        // --- INICIO DE CAMBIOS: Lógica para renderizar el Organigrama de Unidades ---
+        function initUnidadesOrgChart() {
+            // Obtener los datos de las unidades desde el modelo de Thymeleaf
+            const unidades = /*[[${unidades}]]*/ [];
+
+            if (!unidades || unidades.length === 0) {
+                console.warn("No se encontraron datos de unidades para el organigrama.");
+                // Opcional: Mostrar un mensaje en el contenedor
+                const container = document.getElementById("organigrama-unidades-container");
+                if(container) container.innerHTML = '<p class="text-center p-5">No hay datos de organigrama disponibles.</p>';
+                return;
+            }
+
+            // Plantilla de diseño para los nodos del organigrama
+            OrgChart.templates.disco = Object.assign({}, OrgChart.templates.ula);
+            OrgChart.templates.disco.size = [255, 85];
+            OrgChart.templates.disco.node =
+                `<rect x="0" y="0" height="{h}" width="{w}" rx="15" ry="15" fill="#004883" stroke-width="0"></rect>`;
+            OrgChart.templates.disco.field_1 = `<text style="font-size: 14px;" font-weight="bold" fill="#fff" x="127.5" y="46" text-anchor="middle">{val}</text>`;
+
+            // Configuración e inicialización del organigrama
+            const chart = new OrgChart(document.getElementById("organigrama-unidades-container"), {
+                template: "disco",
+                nodeBinding: {
+                    field_1: "nombreUnidad",
+                },
+                scaleInitial: 0.8, // Escala inicial para ajustar al contenedor
+                enablePan: true,
+                enableZoom: false,
+                nodeMouseClick: OrgChart.action.none,
+                mouseScrool: OrgChart.action.none,
+                menu: {},
+                enableSearch: false,
+                nodes: unidades
+            });
+
+            // Evento de clic para redirigir a los detalles de la unidad
+            chart.on('click', function(sender, args) {
+                const nodeId = args.node.id;
+                if (nodeId) {
+                    mostrarDetallesUnidad(nodeId); // <-- Usar la nueva función
+                }
+                return false;
+            });
+        }
+
+        // Llamar a la función para inicializar el organigrama
+        initUnidadesOrgChart();
+
+        function initCargosOrgChart() {
+            const cargos = /*[[${cargos}]]*/ [];
+
+            if (!cargos || cargos.length === 0) {
+                const container = document.getElementById("organigrama-cargos-container");
+                if(container) container.innerHTML = '<p class="text-center p-5">No hay datos de organigrama disponibles.</p>';
+                return;
+            }
+
+            // Función para dividir el nombre del cargo en hasta 3 líneas
+            function splitNameIntoLines(fullName) {
+                const words = (fullName || "").split(" ");
+                const lines = ["", "", ""];
+                let currentLine = 0;
+                for (let i = 0; i < words.length && currentLine < 3; i++) {
+                    const testLine = lines[currentLine] + (lines[currentLine] ? " " : "") + words[i];
+                    if (testLine.length <= 25) {
+                        lines[currentLine] = testLine;
+                    } else {
+                        currentLine++;
+                        if(currentLine < 3) i--;
+                    }
+                }
+                return lines;
+            }
+
+            // Procesar cada cargo para dividir el nombre
+            cargos.forEach(cargo => {
+                const lines = splitNameIntoLines(cargo.name);
+                cargo.name = lines[0];
+                cargo.title = lines[1];
+                cargo.extra = lines[2];
+            });
+
+            // Plantilla de diseño (la misma que unidades, pero con 3 campos de texto)
+            OrgChart.templates.discoCargos = Object.assign({}, OrgChart.templates.ula);
+            OrgChart.templates.discoCargos.size = [255, 85];
+            OrgChart.templates.discoCargos.node = `<rect x="0" y="0" height="{h}" width="{w}" rx="15" ry="15" fill="#004883" stroke-width="0"></rect>`;
+            OrgChart.templates.discoCargos.field_0 = `<text style="font-size: 14px;" font-weight="bold" fill="#fff" x="127.5" y="26" text-anchor="middle">{val}</text>`;
+            OrgChart.templates.discoCargos.field_1 = `<text style="font-size: 14px;" font-weight="bold" fill="#fff" x="127.5" y="46" text-anchor="middle">{val}</text>`;
+            OrgChart.templates.discoCargos.field_2 = `<text style="font-size: 14px;" font-weight="bold" fill="#fff" x="127.5" y="66" text-anchor="middle">{val}</text>`;
+
+            const chart = new OrgChart(document.getElementById("organigrama-cargos-container"), {
+                template: "discoCargos",
+                nodeBinding: {
+                    field_0: "name",
+                    field_1: "title",
+                    field_2: "extra"
+                },
+                scaleInitial: 0.5, // Empezar con un zoom más pequeño
+                enablePan: true,
+                enableZoom: false,
+                mouseScrool: OrgChart.action.none,
+                nodeMouseClick: OrgChart.action.none,
+                menu: {},
+                enableSearch: false,
+                nodes: cargos
+            });
+
+            chart.on('click', function(sender, args) {
+                const nodeId = args.node.id;
+                if (nodeId) {
+                    mostrarDetallesCargo(nodeId); // <-- Cambiar a esta función
+                }
+                return false;
+            });
+        }
+        initCargosOrgChart();
+
+    });
+
+    // ... (La función initThreeJSAnimation() y el resto de tu JS se mantiene igual) ...
+
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- Efecto de scroll en el header ---
+        const header = document.getElementById('header');
+        if (header) {
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('header-scrolled', window.scrollY > 50);
+            });
+        }
+
+        // --- Animación al hacer scroll ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+        // --- Actualizar año en el footer ---
+        const currentYearEl = document.getElementById('current-year');
+        if (currentYearEl) {
+            currentYearEl.textContent = new Date().getFullYear();
+        }
+
+
+    });
+
+
+    function initThreeJSAnimation() {
+        const container = document.getElementById('three-js-container');
+        if (!container || container.clientWidth === 0) return;
+
+        // Scene, Camera, Renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.z = 4;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        // Model Group
+        const modelGroup = new THREE.Group();
+        scene.add(modelGroup);
+
+        // Materials
+        const cobaltBlueMat = new THREE.MeshStandardMaterial({ color: 0x004883, roughness: 0.4, metalness: 0.1 });
+        const pipeMat = new THREE.MeshStandardMaterial({ color: 0xcc0000, roughness: 0.2, metalness: 0.2 });
+
+        // Main Cube
+        const mainCube = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), cobaltBlueMat);
+        mainCube.position.y = 0.8;
+        modelGroup.add(mainCube);
+
+        // Child Cubes
+        const childCubeGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+        const childCube1 = new THREE.Mesh(childCubeGeo, cobaltBlueMat);
+        childCube1.position.set(-1.2, -0.8, 0);
+        const childCube2 = new THREE.Mesh(childCubeGeo, cobaltBlueMat);
+        childCube2.position.set(0, -0.8, 0);
+        const childCube3 = new THREE.Mesh(childCubeGeo, cobaltBlueMat);
+        childCube3.position.set(1.2, -0.8, 0);
+        modelGroup.add(childCube1, childCube2, childCube3);
+
+        // Connection Pipes
+        const tubeRadius = 0.1;
+        const pathLeft = new THREE.CatmullRomCurve3([ new THREE.Vector3(0, 0.2, 0), new THREE.Vector3(0, 0, 0), new THREE.Vector3(-1.2, 0, 0), new THREE.Vector3(-1.2, -0.4, 0) ]);
+        const pathMiddle = new THREE.CatmullRomCurve3([ new THREE.Vector3(0, 0.2, 0), new THREE.Vector3(0, -0.4, 0) ]);
+        const pathRight = new THREE.CatmullRomCurve3([ new THREE.Vector3(0, 0.2, 0), new THREE.Vector3(0, 0, 0), new THREE.Vector3(1.2, 0, 0), new THREE.Vector3(1.2, -0.4, 0) ]);
+
+        modelGroup.add(new THREE.Mesh(new THREE.TubeGeometry(pathLeft, 20, tubeRadius, 8, false), pipeMat));
+        modelGroup.add(new THREE.Mesh(new THREE.TubeGeometry(pathMiddle, 2, tubeRadius, 8, false), pipeMat));
+        modelGroup.add(new THREE.Mesh(new THREE.TubeGeometry(pathRight, 20, tubeRadius, 8, false), pipeMat));
+
+        // Animation Loop
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Continuous rotation on the Y-axis
+            modelGroup.rotation.y = elapsedTime * 0.25;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle Resize
+        function onWindowResize() {
+            if(container.clientWidth > 0 && container.clientHeight > 0) {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            }
+        }
+        window.addEventListener('resize', onWindowResize);
+    }
+</script>
+<script>
+    // Variable global para almacenar los datos de la unidad actual
+    let currentUnidadData = null;
+
+    function mostrarDetallesUnidad(nodeId) {
+        if (!nodeId) {
+            console.error('No se proporcionó un ID de unidad');
+            return;
+        }
+
+        fetch(`/api/unidades/${nodeId}`)
+            .then(response => response.json())
+            .then(data => {
+                currentUnidadData = data; // Guardar datos globalmente
+                const modalBody = document.getElementById('unidadModalBody');
+                const modalTitle = document.getElementById('unidadModalLabel');
+
+                modalTitle.innerHTML = `<i class="fas fa-building me-2"></i>${data.nombreUnidad || 'Detalles de la Unidad'}`;
+
+                // Función para generar lista estilizada
+                const buildStyledList = (items, emptyMessage = 'No hay elementos definidos.') => {
+                    if (!items || items.length === 0) {
+                        return `<p class="no-data">${emptyMessage}</p>`;
+                    }
+                    return '<ul class="list-styled">' +
+                        items.map(item => `<li>${item}</li>`).join('') +
+                        '</ul>';
+                };
+
+                // Función para lista de cargos
+                const buildCargoList = (cargos) => {
+                    if (!cargos || cargos.length === 0) {
+                        return '<p class="no-data">No hay cargos asociados.</p>';
+                    }
+                    return '<ul class="list-styled">' +
+                        cargos.map(cargo => `<li>${cargo.name}</li>`).join('') +
+                        '</ul>';
+                };
+
+                // Función para relaciones internas
+                const buildRelacionesInternasList = (relaciones) => {
+                    if (!relaciones || relaciones.length === 0) {
+                        return '<p class="no-data">No hay relaciones de coordinación definidas.</p>';
+                    }
+                    return '<ul class="list-styled">' +
+                        relaciones.map(item =>
+                            `<li><strong>${item.tipoRelacion}:</strong> ${item.nombreUnidadDestino}</li>`
+                        ).join('') +
+                        '</ul>';
+                };
+
+                // CONSTRUCCIÓN DEL HTML DEL MODAL EN UNA SOLA COLUMNA
+                modalBody.innerHTML = `
+                <h2 class="section-title">1. INFORMACIÓN GENERAL</h2>
+                <div class="info-card">
+                    <div class="info-row">
+                        <div class="info-label">Nombre de la Unidad:</div>
+                        <div class="info-value"><strong>${data.nombreUnidad || 'Sin nombre'}</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Tipo de Unidad:</div>
+                        <div class="info-value"><span class="badge-tipo">${data.tipoUnidad || 'No especificado'}</span></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Clasificación:</div>
+                        <div class="info-value">${data.clasificacion || 'No especificado'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Nivel Jerárquico:</div>
+                        <div class="info-value">${data.nivelJerarquico || 'No especificado'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Dependencia:</div>
+                        <div class="info-value">${data.dependencia || 'Nivel Superior'}</div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Cargos Asociados</h2>
+                <div class="info-card">
+                    ${buildCargoList(data.cargos)}
+                </div>
+
+                <h2 class="section-title">2. OBJETIVOS</h2>
+                <div class="info-card">
+                    ${buildStyledList(data.objetivos, 'No hay objetivos asignados.')}
+                </div>
+
+                <h2 class="section-title">3. FUNCIONES GENERALES</h2>
+                <div class="info-card">
+                    ${buildStyledList(data.funciones, 'No hay funciones generales asignadas.')}
+                </div>
+
+                <h2 class="section-title">4. RELACIONES DE COORDINACIÓN</h2>
+
+                <h5 class="text-muted mb-3">Internas</h5>
+                <div class="info-card">
+                    ${buildRelacionesInternasList(data.relacionesInternas)}
+                </div>
+
+                <h5 class="text-muted mb-3 mt-4">Externas</h5>
+                <div class="info-card">
+                    ${buildStyledList(
+                    data.relacionesExternas?.map(r => r.nombre || r),
+                    'No hay relaciones externas definidas.'
+                )}
+                </div>
+            `;
+
+                // Mostrar el modal
+                var unidadModal = new bootstrap.Modal(document.getElementById('unidadModal'));
+                unidadModal.show();
+            })
+            .catch(error => {
+                console.error('Error al obtener los detalles de la unidad:', error);
+                alert('No se pudieron cargar los detalles completos de la unidad.');
+            });
+    }
+
+    // Función para generar el PDF desde el modal
+    function generateModalPDF() {
+        if (!currentUnidadData) {
+            alert('No hay datos de unidad disponibles para generar el PDF.');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 15;
+        const contentWidth = pageWidth - 2 * margin;
+        let yPosition = 40;
+
+        const addFooter = (doc, unidadName, currentPage, totalPages) => {
+            doc.setPage(currentPage);
+            doc.setFillColor(0, 51, 102);
+            doc.rect(0, pageHeight - 15, pageWidth, 10, 'F');
+            doc.setDrawColor(0, 51, 102);
+            doc.setLineWidth(0.2);
+            doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+            doc.setFontSize(8);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Unidad: ${unidadName || 'Sin nombre'}`, margin, pageHeight - 8);
+            doc.text(`Página ${currentPage} de ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+        };
+
+        const logoInformaticaUrl = '/img/logoInformaticaSistemas.png';
+        const logoUMSSUrl = '/img/LogoUMSS.png';
+        const imgInformatica = new Image();
+        const imgUMSS = new Image();
+        imgInformatica.crossOrigin = "Anonymous";
+        imgUMSS.crossOrigin = "Anonymous";
+        imgInformatica.src = logoInformaticaUrl;
+        imgUMSS.src = logoUMSSUrl;
+
+        Promise.all([
+            new Promise((resolve) => { imgInformatica.onload = resolve; imgInformatica.onerror = resolve; }),
+            new Promise((resolve) => { imgUMSS.onload = resolve; imgUMSS.onerror = resolve; })
+        ]).then(() => {
+            // Header
+            doc.setFillColor(0, 51, 102);
+            doc.rect(0, 0, pageWidth, 30, 'F');
+            try {
+                doc.addImage(imgInformatica, 'PNG', 10, 5, 20, 20);
+                doc.addImage(imgUMSS, 'PNG', pageWidth - 30, 5, 20, 20);
+            } catch (e) { console.error("Error adding images: ", e); }
+
+            doc.setFontSize(16);
+            doc.setTextColor(255, 255, 255);
+            doc.text("PERFIL DE UNIDAD", pageWidth / 2, 15, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text(currentUnidadData.nombreUnidad || 'Nombre de la Unidad', pageWidth / 2, 25, { align: 'center' });
+
+            // Section 1: General Information
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.text("1. INFORMACIÓN GENERAL", margin, yPosition);
+            yPosition += 5;
+            doc.setLineWidth(0.3);
+            doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+
+            const addField = (label, value) => {
+                if (yPosition > pageHeight - margin - 10) { doc.addPage(); yPosition = margin; }
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(51, 51, 51);
+                doc.text(label, margin, yPosition);
+                doc.setFont('helvetica', 'normal');
+                let textLines = doc.splitTextToSize(value || '---', contentWidth - 45);
+                doc.text(textLines, margin + 50, yPosition);
+                yPosition += (textLines.length * 4) + 4;
+            };
+
+            addField("Nombre de la Unidad:", currentUnidadData.nombreUnidad);
+            addField("Tipo de Unidad:", currentUnidadData.tipoUnidad);
+            addField("Clasificación:", currentUnidadData.clasificacion);
+            addField("Nivel Jerárquico:", currentUnidadData.nivelJerarquico);
+            addField("Dependencia:", currentUnidadData.dependencia);
+
+            if (currentUnidadData.cargos && currentUnidadData.cargos.length > 0) {
+                const cargosText = currentUnidadData.cargos.map(c => c.name).join(', ');
+                addField("Cargos Asociados:", cargosText);
+            }
+
+            // Section 2: Objectives
+            yPosition += 5;
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.text("2. OBJETIVOS", margin, yPosition);
+            yPosition += 5;
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+
+            if (currentUnidadData.objetivos && currentUnidadData.objetivos.length > 0) {
+                currentUnidadData.objetivos.forEach((obj, index) => {
+                    const objText = `${index + 1}. ${obj}`;
+                    let textLines = doc.splitTextToSize(objText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                doc.text("No hay objetivos asignados.", margin, yPosition);
+                yPosition += 10;
+            }
+
+            // Section 3: General Functions
+            yPosition += 5;
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.text("3. FUNCIONES GENERALES", margin, yPosition);
+            yPosition += 5;
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+
+            if (currentUnidadData.funciones && currentUnidadData.funciones.length > 0) {
+                currentUnidadData.funciones.forEach((func, index) => {
+                    const funcText = `${index + 1}. ${func}`;
+                    let textLines = doc.splitTextToSize(funcText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                doc.text("No hay funciones generales asignadas.", margin, yPosition);
+                yPosition += 10;
+            }
+
+            // Section 4: Coordination Relationships
+            yPosition += 5;
+            if (yPosition > pageHeight - margin - 20) { doc.addPage(); yPosition = margin; }
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.text("4. RELACIONES DE COORDINACIÓN", margin, yPosition);
+            yPosition += 5;
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+
+            // Relaciones Internas
+            doc.setFont('helvetica', 'bold');
+            doc.text("Internas:", margin, yPosition);
+            yPosition += 6;
+            doc.setFont('helvetica', 'normal');
+
+            if (currentUnidadData.relacionesInternas && currentUnidadData.relacionesInternas.length > 0) {
+                currentUnidadData.relacionesInternas.forEach((rel, index) => {
+                    const relText = `${index + 1}. ${rel.tipoRelacion}: ${rel.nombreUnidadDestino}`;
+                    let textLines = doc.splitTextToSize(relText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin + 5, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                doc.text("No hay relaciones internas definidas.", margin + 5, yPosition);
+                yPosition += 6;
+            }
+
+            // Relaciones Externas
+            yPosition += 5;
+            doc.setFont('helvetica', 'bold');
+            doc.text("Externas:", margin, yPosition);
+            yPosition += 6;
+            doc.setFont('helvetica', 'normal');
+
+            if (currentUnidadData.relacionesExternas && currentUnidadData.relacionesExternas.length > 0) {
+                currentUnidadData.relacionesExternas.forEach((rel, index) => {
+                    const relText = `${index + 1}. ${rel.nombre || rel}`;
+                    let textLines = doc.splitTextToSize(relText, contentWidth);
+                    if (yPosition + (textLines.length * 4) > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                    doc.text(textLines, margin + 5, yPosition);
+                    yPosition += (textLines.length * 4) + 4;
+                });
+            } else {
+                doc.text("No hay relaciones externas definidas.", margin + 5, yPosition);
+                yPosition += 6;
+            }
+
+            // Add footer to all pages
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                addFooter(doc, currentUnidadData.nombreUnidad, i, totalPages);
+            }
+
+            // Save the PDF
+            doc.save(`perfil_unidad_${currentUnidadData.nombreUnidad.replace(/ /g, '_')}.pdf`);
+        }).catch((error) => {
+            console.error("Error loading images for PDF: ", error);
+            alert("Error al cargar imágenes para el PDF. Se generará sin logos.");
+        });
+    }
+</script>
+
+<script>
+    // Variable global para almacenar los datos del cargo actual
+    let currentCargoData = null;
+
+    // Función para mostrar detalles del cargo
+    function mostrarDetallesCargo(nodeId) {
+        if (!nodeId) {
+            console.error('No se proporcionó un ID de cargo');
+            return;
+        }
+
+        fetch(`/api/cargos/${nodeId}`)
+            .then(response => response.json())
+            .then(data => {
+                currentCargoData = data; // Guardar datos globalmente
+                const modalBody = document.getElementById('cargoModalBody');
+                const modalTitle = document.getElementById('cargoModalLabel');
+
+                modalTitle.innerHTML = `<i class="fas fa-user-tie me-2"></i>${data.nombreCargo || 'Detalles del Cargo'}`;
+
+                // Función para generar lista estilizada
+                const buildStyledList = (items, emptyMessage = 'No hay elementos definidos.') => {
+                    if (!items || items.length === 0) {
+                        return `<p class="no-data">${emptyMessage}</p>`;
+                    }
+                    return '<ul class="list-styled">' +
+                        items.map(item => `<li>${item}</li>`).join('') +
+                        '</ul>';
+                };
+
+                // Función para relaciones internas
+                const buildRelacionesInternasList = (relaciones) => {
+                    if (!relaciones || relaciones.length === 0) {
+                        return '<p class="no-data">No hay relaciones internas definidas.</p>';
+                    }
+                    return '<ul class="list-styled">' +
+                        relaciones.map(item =>
+                            `<li><strong>${item.tipoRelacion}:</strong> ${item.cargoRelacionado}</li>`
+                        ).join('') +
+                        '</ul>';
+                };
+
+                // Construir el HTML del modal
+                modalBody.innerHTML = `
+            <h2 class="section-title">1. INFORMACIÓN GENERAL</h2>
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-label">Denominación del Cargo:</div>
+                    <div class="info-value"><strong>${data.nombreCargo || 'Sin nombre'}</strong></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Jefe/Superior:</div>
+                    <div class="info-value">${data.superior || 'Ninguno'}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Cargos Dependientes:</div>
+                    <div class="info-value">${data.dependientes || 'Ninguno'}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Clasificación de Cargo:</div>
+                    <div class="info-value"><span class="badge-tipo">${data.clasificacion || 'Lineal'}</span></div>
+                </div>
+            </div>
+
+            <h2 class="section-title">2. RESPONSABILIDADES</h2>
+            <div class="info-card">
+                ${buildStyledList(data.responsabilidades, 'No hay responsabilidades asignadas.')}
+            </div>
+
+            <h2 class="section-title">3. RELACIONES DE COORDINACIÓN</h2>
+            <h5 class="text-muted mb-3">Internas</h5>
+            <div class="info-card">
+                ${buildRelacionesInternasList(data.relacionesInternas)}
+            </div>
+            <h5 class="text-muted mb-3 mt-4">Externas</h5>
+            <div class="info-card">
+                ${buildStyledList(data.relacionesExternas, 'No hay relaciones externas definidas.')}
+            </div>
+
+            <h2 class="section-title">4. FUNCIONES Y ACTIVIDADES</h2>
+            <div class="info-card">
+                ${buildStyledList(data.funcionesActividades, 'No hay funciones o actividades asignadas.')}
+            </div>
+
+            <h2 class="section-title">5. DOCUMENTOS GENERADOS</h2>
+            <div class="info-card">
+                ${buildStyledList(data.documentosGenera, 'No hay documentos generados asignados.')}
+            </div>
+
+            <h2 class="section-title">6. PERFIL DE CONTRATACIÓN</h2>
+            <div class="info-card">
+                ${buildStyledList(data.perfilContratacion, 'No hay items en el perfil de contratación.')}
+            </div>
+
+            <h2 class="section-title">7. GRADO ACADÉMICO MÍNIMO</h2>
+            <div class="info-card">
+                ${buildStyledList(data.gradoAcademico, 'No hay grado académico mínimo asignado.')}
+            </div>
+
+            <h2 class="section-title">8. OTROS CONOCIMIENTOS RECOMENDABLES</h2>
+            <div class="info-card">
+                ${buildStyledList(data.otrosConocimientos, 'No hay otros conocimientos recomendables.')}
+            </div>
+
+            <h2 class="section-title">9. HABILIDADES Y DESTREZAS</h2>
+            <div class="info-card">
+                ${buildStyledList(data.habilidadesDestrezas, 'No hay habilidades y destrezas asignadas.')}
+            </div>
+        `;
+
+                // Mostrar el modal
+                var cargoModal = new bootstrap.Modal(document.getElementById('cargoModal'));
+                cargoModal.show();
+            })
+            .catch(error => {
+                console.error('Error al obtener los detalles del cargo:', error);
+                alert('No se pudieron cargar los detalles completos del cargo.');
+            });
+    }
+
+    // Función para generar el PDF desde el modal
+    function generateCargoPDF() {
+        console.log('Generando PDF con datos:', currentCargoData);
+
+        if (!currentCargoData || !currentCargoData.nombreCargo) {
+            alert('No hay datos de cargo disponibles para generar el PDF. Por favor, selecciona un cargo primero.');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 15;
+        const contentWidth = pageWidth - 2 * margin;
+        let yPosition = 40;
+
+        const addFooter = (doc, cargoName, currentPage, totalPages) => {
+            doc.setPage(currentPage);
+            doc.setFillColor(0, 51, 102);
+            doc.rect(0, pageHeight - 15, pageWidth, 10, 'F');
+            doc.setDrawColor(0, 51, 102);
+            doc.setLineWidth(0.2);
+            doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+            doc.setFontSize(8);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Cargo: ${cargoName || 'Sin nombre'}`, margin, pageHeight - 8);
+            doc.text(`Página ${currentPage} de ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+        };
+
+        const checkNewPage = (requiredSpace = 15) => {
+            if (yPosition > pageHeight - margin - requiredSpace) {
+                doc.addPage();
+                yPosition = margin;
+                return true;
+            }
+            return false;
+        };
+
+        const addField = (label, value) => {
+            checkNewPage();
+            doc.setFont('helvetica', 'bold');
+            doc.text(label, margin, yPosition);
+            doc.setFont('helvetica', 'normal');
+            let textLines = doc.splitTextToSize(value || 'N/A', contentWidth - 50);
+            doc.text(textLines, margin + 50, yPosition);
+            yPosition += Math.max(textLines.length * 4, 6);
+        };
+
+        const addSection = (title, items, emptyMessage = "No hay elementos asignados.") => {
+            checkNewPage(20);
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text(title, margin, yPosition);
+            yPosition += 5;
+
+            doc.setLineWidth(0.3);
+            doc.setDrawColor(0, 51, 102);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+            doc.setFont('helvetica', 'normal');
+
+            if (items && items.length > 0) {
+                items.forEach((item, index) => {
+                    let itemText;
+                    if (typeof item === 'string') {
+                        itemText = `${index + 1}. ${item}`;
+                    } else if (item.tipoRelacion && item.cargoRelacionado) {
+                        itemText = `${index + 1}. ${item.tipoRelacion}: ${item.cargoRelacionado}`;
+                    } else {
+                        itemText = `${index + 1}. ${JSON.stringify(item)}`;
+                    }
+
+                    let textLines = doc.splitTextToSize(itemText, contentWidth);
+                    checkNewPage(textLines.length * 4 + 4);
+                    doc.text(textLines, margin, yPosition);
+                    yPosition += (textLines.length * 4) + 2;
+                });
+            } else {
+                checkNewPage();
+                doc.text(emptyMessage, margin, yPosition);
+                yPosition += 6;
+            }
+            yPosition += 5;
+        };
+
+        const logoInformaticaUrl = '/img/logoInformaticaSistemas.png';
+        const logoUMSSUrl = '/img/LogoUMSS.png';
+        const imgInformatica = new Image();
+        const imgUMSS = new Image();
+        imgInformatica.crossOrigin = "Anonymous";
+        imgUMSS.crossOrigin = "Anonymous";
+        imgInformatica.src = logoInformaticaUrl;
+        imgUMSS.src = logoUMSSUrl;
+
+        Promise.all([
+            new Promise((resolve) => { imgInformatica.onload = resolve; imgInformatica.onerror = resolve; }),
+            new Promise((resolve) => { imgUMSS.onload = resolve; imgUMSS.onerror = resolve; })
+        ]).then(() => {
+            // Header
+            doc.setFillColor(0, 51, 102);
+            doc.rect(0, 0, pageWidth, 30, 'F');
+
+            try {
+                doc.addImage(imgInformatica, 'PNG', 10, 5, 20, 20);
+                doc.addImage(imgUMSS, 'PNG', pageWidth - 30, 5, 20, 20);
+            } catch (e) { console.error("Error adding images: ", e); }
+
+            doc.setFontSize(16);
+            doc.setTextColor(255, 255, 255);
+            doc.text("PERFIL DE CARGO", pageWidth / 2, 15, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text(currentCargoData.nombreCargo || 'Nombre del Cargo', pageWidth / 2, 25, { align: 'center' });
+
+            // SECCIÓN 1: INFORMACIÓN GENERAL
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(12);
+            doc.text("1. INFORMACIÓN GENERAL", margin, yPosition);
+            yPosition += 5;
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(51, 51, 51);
+            addField("Denominación del Cargo:", currentCargoData.nombreCargo);
+            addField("Jefe/Superior:", currentCargoData.superior);
+            addField("Cargos Dependientes:", currentCargoData.dependientes);
+            addField("Clasificación de Cargo:", currentCargoData.clasificacion);
+            yPosition += 5;
+
+            // Secciones restantes
+            addSection("2. RESPONSABILIDADES", currentCargoData.responsabilidades, "No hay responsabilidades asignadas.");
+            addSection("3. RELACIONES INTERNAS", currentCargoData.relacionesInternas, "No tiene relaciones internas definidas.");
+            addSection("4. RELACIONES EXTERNAS", currentCargoData.relacionesExternas, "No tiene relaciones externas definidas.");
+            addSection("5. FUNCIONES Y ACTIVIDADES", currentCargoData.funcionesActividades, "No hay funciones o actividades asignadas.");
+            addSection("6. DOCUMENTOS GENERADOS", currentCargoData.documentosGenera, "No hay documentos generados asignados.");
+            addSection("7. PERFIL DE CONTRATACIÓN", currentCargoData.perfilContratacion, "No hay items en el perfil de contratación.");
+            addSection("8. GRADO ACADÉMICO MÍNIMO", currentCargoData.gradoAcademico, "No hay grado académico mínimo asignado.");
+            addSection("9. OTROS CONOCIMIENTOS RECOMENDABLES", currentCargoData.otrosConocimientos, "No hay otros conocimientos recomendables.");
+            addSection("10. HABILIDADES Y DESTREZAS", currentCargoData.habilidadesDestrezas, "No hay habilidades y destrezas asignadas.");
+
+            // Add footer to all pages
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                addFooter(doc, currentCargoData.nombreCargo, i, totalPages);
+            }
+
+            // Save the PDF
+            doc.save(`perfil_cargo_${currentCargoData.nombreCargo.replace(/ /g, '_')}.pdf`);
+        }).catch((error) => {
+            console.error("Error loading images for PDF: ", error);
+            alert("Error al cargar imágenes para el PDF. Se generará sin logos.");
+        });
+    }
+</script>
+
+</body>
+</html>

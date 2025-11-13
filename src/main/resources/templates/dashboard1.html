@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$CONTENT_TITLE - Panel Administrativo UMSS">Panel Administrativo - UMSS</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --umss-blue: #003f7f;
+            --umss-red: #dc3545;
+            --umss-white: #ffffff;
+            --umss-light-blue: #e8f2ff;
+            --umss-dark-blue: #002856;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--umss-blue) 0%, var(--umss-dark-blue) 100%);
+            color: white;
+            padding: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            height: 70px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            height: 100%;
+            padding: 0 20px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--umss-blue);
+            font-size: 18px;
+        }
+
+        .university-info h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .university-info p {
+            font-size: 0.85rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: auto;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .user-menu:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--umss-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - 70px);
+            background: white;
+            border-right: 1px solid #e9ecef;
+            overflow-y: auto;
+            z-index: 1020;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: var(--umss-light-blue);
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--umss-blue);
+            margin: 0;
+        }
+
+        .nav-menu {
+            padding: 15px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 25px;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 20px 10px;
+            margin-bottom: 10px;
+        }
+
+        .nav-item {
+            margin: 2px 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--umss-light-blue);
+            color: var(--umss-blue);
+            transform: translateX(3px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--umss-blue), var(--umss-dark-blue));
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 63, 127, 0.3);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: 70px;
+            padding: 30px;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Breadcrumb */
+        .breadcrumb-container {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .breadcrumb {
+            margin: 0;
+            background: none;
+            padding: 0;
+        }
+
+        .breadcrumb-item a {
+            color: var(--umss-blue);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--umss-red);
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--umss-blue), var(--umss-dark-blue));
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--umss-blue), var(--umss-dark-blue));
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 63, 127, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--umss-red);
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* Tables */
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: var(--umss-light-blue);
+            color: var(--umss-dark-blue);
+            font-weight: 600;
+            border: none;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(0, 63, 127, 0.05);
+        }
+
+        /* Alerts */
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #b8dacd;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            border: 1px solid #f1b0b7;
+            color: #721c24;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--umss-dark-blue);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header-content {
+                padding: 0 15px;
+            }
+
+            .university-info h1 {
+                font-size: 1.1rem;
+            }
+
+            .university-info p {
+                display: none;
+            }
+        }
+
+        /* Custom scrollbar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--umss-blue);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <div class="logo-section">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+            </div>
+            <div class="university-info">
+                <h1>Universidad Mayor de San Simón</h1>
+                <p>Panel de Administración</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <a href="#" class="user-menu" data-bs-toggle="dropdown">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; font-weight: 500;">Administrador</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8;">admin@umss.edu.bo</div>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h5 class="sidebar-title">
+            <i class="fas fa-tachometer-alt me-2"></i>
+            Panel de Control
+        </h5>
+    </div>
+
+    <nav class="nav-menu">
+        <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <div class="nav-item">
+                <a href="/dashboard" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Gestión Académica</div>
+            <div class="nav-item">
+                <a href="/tipos-unidad/list" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>Tipos de Unidad</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/unidades/list" class="nav-link">
+                    <i class="fas fa-building"></i>
+                    <span>Unidades</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/facultades/list" class="nav-link">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Facultades</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/carreras/list" class="nav-link">
+                    <i class="fas fa-book"></i>
+                    <span>Carreras</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Usuarios</div>
+            <div class="nav-item">
+                <a href="/usuarios/list" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>Gestión de Usuarios</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/roles/list" class="nav-link">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Roles y Permisos</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Configuración</div>
+            <div class="nav-item">
+                <a href="/configuracion/general" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    <span>Configuración General</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/reportes/list" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reportes</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/dashboard">
+                        <i class="fas fa-home me-1"></i>Inicio
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" layout:fragment="breadcrumb">
+                    Página Actual
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Bienvenido al Panel de Administración
+                    </div>
+                    <div class="card-body">
+                        <h5>Universidad Mayor de San Simón</h5>
+                        <p class="text-muted">Sistema de Gestión Administrativa</p>
+                        <p>Utilice el menú lateral para navegar entre las diferentes secciones del sistema.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container-fluid">
+        <p class="mb-0">
+            &copy; 2025 Universidad Mayor de San Simón - Sistema de Gestión Administrativa
+        </p>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Activar tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
+    // Marcar enlace activo en el menú
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

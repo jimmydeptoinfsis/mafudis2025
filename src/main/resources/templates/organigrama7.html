@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Organigrama de Unidades</title>
+    <script src="/js/OrgChart.js"></script>
+    <style>
+        #tree {
+            width: 100%;
+            height: 600px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+<h1>Organigrama de Unidades</h1>
+<div id="tree"></div>
+
+<script th:inline="javascript">
+    window.onload = function () {
+        // Template para "assistant" (maintained for consistency, though units may not use it directly)
+        OrgChart.templates.assistantTemplate = Object.assign({}, OrgChart.templates.ana);
+
+        // Obtener los datos inyectados desde el controlador
+        var unidades = /*[[${unidades}]]*/ [];
+
+        // Procesar los datos para ajustar el formato de "tags" (derived from associated cargos)
+        if (unidades && unidades.length > 0) {
+            unidades.forEach(unidad => {
+                // Derive tags from cargos associated with the unit
+                unidad.tags = unidad.cargos ?
+                    [...new Set(unidad.cargos.flatMap(cargo =>
+                        cargo.tags ? cargo.tags.map(tag => tag.name) : []
+                    ))] : [];
+            });
+        }
+
+        // Log for debugging
+        console.log("Unidades received:", unidades);
+
+        // Configuración del organigrama
+        var chart = new OrgChart(document.getElementById("tree"), {
+            template: "ana",
+            nodeBinding: {
+                field_0: "nombreUnidad",
+                field_1: "tipoUnidadName"
+            },
+            scaleInitial: 1,
+            enablePan: true,
+            enableZoom: true,
+            enableEdit: false,
+            nodeMouseClick: OrgChart.action.none,
+            menu: {},
+            enableDragDrop: false,
+            enableSearch: false,
+            showMenuButton: false,
+            tags: {
+                "assistant": { template: "assistantTemplate" },
+                "subAssistant": { template: "subAssistantTemplate" }
+            },
+            nodes: unidades
+        });
+
+        // Evento de clic en un nodo para redirigir a la página de detalles
+        chart.on('click', function(sender, args) {
+            var node = args.node;
+            if (node) {
+                window.location.href = '/unidades/details/' + node.id;
+            }
+            return false; // Evitar comportamiento por defecto
+        });
+    };
+</script>
+</body>
+</html>

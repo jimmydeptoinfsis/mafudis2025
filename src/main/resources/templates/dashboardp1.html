@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' - Panel Administrativo'">Organigrama - Panel Administrativo</title>
+    <style>
+        #orgchart-container {
+            width: 100%;
+            height: 600px;
+            overflow: auto;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div th:replace="~{fragments/sidebar-fragment :: sidebar-fragment}"></div>
+        </div>
+        <div class="col-md-9">
+            <div th:replace="~{fragments/breadcrumb-fragment :: breadcrumb-fragment}"></div>
+            <div id="main-content-area">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Organigrama del Departamento</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="orgchart-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/footer-fragment :: footer-fragment}"></div>
+<script src="https://cdn.balkan.app/orgchart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var chart = new OrgChart(document.getElementById("orgchart-container"), {
+            template: "ula",
+            enableDragDrop: true,
+            mouseScrool: OrgChart.action.scroll,
+            nodeBinding: {
+                field_0: "name",
+                field_1: "title",
+                img_0: "img"
+            },
+            nodes: [
+                { id: 1, name: "Ana López", title: "Directora", img: "https://balkangraph.com/js/img/1.jpg" },
+                { id: 2, pid: 1, name: "Carlos Pérez", title: "Jefe de Sistemas", img: "https://balkangraph.com/js/img/2.jpg" },
+                { id: 3, pid: 1, name: "María Gómez", title: "Jefa de Investigación", img: "https://balkangraph.com/js/img/3.jpg" },
+                { id: 4, pid: 2, name: "Juan Martínez", title: "Analista de Sistemas", img: "https://balkangraph.com/js/img/4.jpg" },
+                { id: 5, pid: 2, name: "Laura Sánchez", title: "Desarrolladora Senior", img: "https://balkangraph.com/js/img/5.jpg" },
+                { id: 6, pid: 3, name: "Pedro Ramírez", title: "Investigador Principal", img: "https://balkangraph.com/js/img/6.jpg" }
+            ]
+        });
+    });
+</script>
+</body>
+</html>

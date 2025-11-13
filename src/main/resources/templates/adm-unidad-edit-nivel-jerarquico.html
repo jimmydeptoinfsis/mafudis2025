@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!-- Head -->
+<head th:replace="~{base-layout :: head('Dashboard')}"></head>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+    }
+</style>
+
+<body>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br><!-- Breadcrumb -->
+    <div class="breadcrumb-container mb-3">
+        <div th:replace="~{fragments/_breadcrumbs :: breadcrumbs}"></div>
+    </div>
+
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Editar nivel jerárquico de unidad para: <span th:text="${unidad.nombreUnidad} ?: 'Sin nombre'"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="unidad-edit-clasificacion">
+                            <!--<h2>Editar Nivel Jerárquico de Unidad para <span th:text="${unidad.nombreUnidad} ?: 'Sin nombre'"></span></h2>-->
+
+                            <form th:action="@{/adm/unidades/{id}/update-nivel-jerarquico(id=${unidad.id})}" method="post">
+                                <div class="mb-3">
+                                    <label for="nivelJerarquicoId" class="form-label">Seleccionar nivel jerárquico:</label>
+                                    <select class="form-select" id="nivelJerarquicoId" name="nivelJerarquicoId" required>
+                                        <option value="">-- Seleccione un nivel --</option>
+                                        <option th:each="nivel : ${nivelesJerarquicos}"
+                                                th:value="${nivel.id}"
+                                                th:text="${nivel.nombre}"
+                                                th:selected="${unidad.nivelJerarquico != null && unidad.nivelJerarquico.id == nivel.id}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Guardar Asignación</button>
+
+                                <a th:href="@{/niveles-jerarquicos/adm/list(fromUnidadId=${unidad.id})}" class="btn btn-info">
+                                    <i class="fas fa-cogs"></i> Gestionar Catálogo de Nivel Jerárquico
+                                </a>
+                                <a th:href="@{${backUrl}}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver a Detalles de la Unidad</a>
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

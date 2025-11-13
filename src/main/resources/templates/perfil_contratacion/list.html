@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfiles de Contratación por el Cargo</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .perfil-contratacion-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .perfil-contratacion-container h1 {
+      color: #87CEEB;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+    }
+    .perfil-contratacion-list {
+      list-style: none;
+      padding: 0;
+    }
+    .perfil-contratacion-item {
+      background-color: #fff;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      cursor: move;
+    }
+    .perfil-contratacion-item:hover {
+      background-color: #f0f0f0;
+    }
+    .back-link, .add-link, .edit-link, .delete-link {
+      display: inline-block;
+      margin-top: 10px;
+      text-decoration: none;
+      color: #87CEEB;
+      margin-right: 20px;
+    }
+    .back-link:hover, .add-link:hover, .edit-link:hover, .delete-link:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .delete-link {
+      color: #ff5555;
+    }
+  </style>
+</head>
+<body>
+<div class="perfil-contratacion-container">
+  <h1 th:text="'Perfiles de Contratación por ' + ${cargo.name}">Perfiles de Contratación</h1>
+  <ul id="perfil-contratacion-list" class="perfil-contratacion-list">
+    <li th:each="perfil : ${perfilesContratacion}"
+        th:id="'perfil-contratacion-' + ${perfil.id}"
+        class="perfil-contratacion-item"
+        th:data-id="${perfil.id}">
+      <span th:text="${perfil.descripcion}">Descripción</span>
+      <a th:href="@{/perfil-contratacion/cargo/{cargoId}/edit/{id}(cargoId=${cargo.id}, id=${perfil.id})}"
+         class="edit-link">Editar</a>
+      <a th:href="@{/perfil-contratacion/cargo/{cargoId}/delete/{id}(cargoId=${cargo.id}, id=${perfil.id})}"
+         class="delete-link"
+         onclick="return confirm('¿Estás seguro de eliminar este perfil?')">Eliminar</a>
+    </li>
+    <li th:if="${perfilesContratacion.isEmpty()}">No hay perfiles asignados.</li>
+  </ul>
+  <a th:href="@{/perfil-contratacion/cargo/{cargoId}/new(cargoId=${cargo.id})}" class="add-link">Agregar Perfil</a>
+  <a th:href="@{/cargos/details/{id}(id=${cargo.id})}" class="back-link">Volver a Detalles del Cargo</a>
+</div>
+
+<script>
+  $(function() {
+    $("#perfil-contratacion-list").sortable({
+      items: ".perfil-contratacion-item",
+      placeholder: "ui-state-highlight",
+      update: function(event, ui) {
+        let orderedIds = [];
+        $(".perfil-contratacion-item").each(function() {
+          orderedIds.push($(this).data("id"));
+        });
+        $.ajax({
+          url: '/perfil-contratacion/cargo/' + [[${cargo.id}]] + '/reorder',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(orderedIds),
+          success: function(response) {
+            console.log(response);
+          },
+          error: function(xhr) {
+            alert("Error al actualizar el orden: " + xhr.responseText);
+          }
+        });
+      }
+    }).disableSelection();
+  });
+</script>
+</body>
+</html>

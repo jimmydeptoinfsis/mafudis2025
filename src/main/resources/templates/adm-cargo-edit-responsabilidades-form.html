@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+
+<head th:replace="~{base-layout :: head('Gestionar Responsabilidades')}"></head>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+    }
+</style>
+<body>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br><!-- Breadcrumb -->
+    <div class="breadcrumb-container mb-3">
+    <div th:replace="~{fragments/_breadcrumbs :: breadcrumbs}"></div>
+    </div>
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                            <span th:text="${responsabilidad.id == null ? 'Agregar nueva responsabilidad a: '+cargo.name : 'Editar responsabilidad a: '+cargo.name}"></span>
+                    </div>
+                    <div class="card-body">
+
+
+                        <form th:action="${responsabilidad.id} == null ? @{/responsabilidades/adm/cargo/{cargoId}(cargoId=${cargo.id})} : @{/responsabilidades/adm/cargo/{cargoId}/edit/{id}(cargoId=${cargo.id}, id=${responsabilidad.id})}"
+                              th:object="${responsabilidad}" method="post">
+                            <div class="mb-3">
+
+                                <label for="descripcion" class="form-label">Descripción:</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" th:field="*{descripcion}" rows="3" required></textarea>
+                                <div class="text-danger" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Guardar Responsabilidad</button>
+                            <a th:href="@{${backUrl}}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i> Cancelar</a>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+
+<div class="container">
+    <!-- Unit Details Section -->
+
+</div>
+
+
+
+<!-- Bootstrap JS (for button functionality if needed) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

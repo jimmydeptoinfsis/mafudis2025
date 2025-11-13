@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${habilidadesDestrezas.id} ? 'Editar Habilidad/Destreza' : 'Nueva Habilidad/Destreza'">Habilidad/Destreza</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .habilidades-destrezas-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .habilidades-destrezas-form h1 {
+            color: #87CEEB;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .habilidades-destrezas-form label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #555;
+        }
+        .habilidades-destrezas-form textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .habilidades-destrezas-form button {
+            background-color: #87CEEB;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .habilidades-destrezas-form button:hover {
+            background-color: #6bb9d6;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #87CEEB;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="habilidades-destrezas-form">
+    <h1 th:text="${habilidadesDestrezas.id} ? 'Editar Habilidad/Destreza' : 'Nueva Habilidad/Destreza'">Habilidad/Destreza</h1>
+    <form th:action="@{${formAction}}"
+          th:object="${habilidadesDestrezas}"
+          method="post">
+        <label for="descripcion">Descripción:</label>
+        <textarea id="descripcion" th:field="*{descripcion}" rows="5" required></textarea>
+        <button type="submit">Guardar</button>
+    </form>
+    <a th:href="@{/habilidades-destrezas/cargo/{cargoId}(cargoId=${cargo.id})}" class="back-link">Volver</a>
+</div>
+</body>
+</html>

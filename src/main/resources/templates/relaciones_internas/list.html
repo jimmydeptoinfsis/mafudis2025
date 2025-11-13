@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Relaciones Internas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Relaciones Internas</h2>
+
+    <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
+
+    <a th:href="@{/relaciones-internas/new}" class="btn btn-success mb-3">Nueva Relación</a>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Cargo Origen</th>
+            <th>Cargo Destino</th>
+            <th>Tipo de Relación</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="relacion : ${relaciones}">
+            <td th:text="${relacion.id}"></td>
+            <td th:text="${relacion.origen.name}"></td>
+            <td th:text="${relacion.destino.name}"></td>
+            <td th:text="${relacion.tipoRelacion}"></td>
+            <td>
+                <a th:href="@{'/relaciones-internas/edit/' + ${relacion.id}}" class="btn btn-sm btn-warning">Editar</a>
+                <a th:href="@{'/relaciones-internas/delete/' + ${relacion.id}}"
+                   class="btn btn-sm btn-danger ms-2"
+                   onclick="return confirm('¿Seguro que deseas eliminar esta relación?')">Eliminar</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/organigrama7}" class="btn btn-primary">Volver al organigrama</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

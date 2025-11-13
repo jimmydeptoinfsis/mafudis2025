@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Organigrama de Cargos</title>
+    <script src="/js/OrgChart.js"></script>
+    <style>
+        /* Estilos para que el organigrama ocupe toda la página */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Evita las barras de scroll */
+        }
+        #tree {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="tree"></div>
+
+<script th:inline="javascript">
+
+    // Plantilla personalizada con bordes redondeados y textos centrados
+    OrgChart.templates.disco = Object.assign({}, OrgChart.templates.ula);
+    OrgChart.templates.disco.size = [255, 85];
+
+    OrgChart.templates.disco.node =
+        `<rect x="0" y="0" height="{h}" width="{w}" rx="15" ry="15" fill="#004883" stroke-width="0" stroke="#e30613"></rect>
+         <line x1="0" y1="2.5" x2="{w}" y2="2.5" stroke-width="0" stroke="#e30613" stroke-linecap="round"></line>`;
+
+    OrgChart.templates.disco.field_0 =
+        `<text style="{style0}" font-weight="bold" fill="#fff" x="127.5" y="26" text-anchor="middle">{val}</text>`;
+
+    OrgChart.templates.disco.field_1 =
+        `<text style="{style1}" font-weight="bold" fill="#fff" x="127.5" y="46" text-anchor="middle">{val}</text>`;
+
+    OrgChart.templates.disco.field_2 =
+        `<text style="{style2}" font-weight="bold" fill="#fff" x="127.5" y="66" text-anchor="middle">{val}</text>`;
+
+    window.onload = function () {
+        // Función para obtener tamaño de fuente dinámico
+        function getFontSize(line) {
+            if (!line) return "font-size: 0px;";
+            const len = line.length;
+            if (len <= 20) return "font-size: 16px;";
+            if (len <= 30) return "font-size: 14px;";
+            if (len <= 40) return "font-size: 12px;";
+            return "font-size: 11px;";
+        }
+
+        // Divide el nombre completo en hasta 3 líneas
+        function splitNameIntoLines(fullName) {
+            const words = fullName.split(" ");
+            const lines = ["", "", ""];
+            let currentLine = 0;
+            for (let i = 0; i < words.length && currentLine < 3; i++) {
+                const word = words[i];
+                const testLine = lines[currentLine] + (lines[currentLine] ? " " : "") + word;
+                if (testLine.length <= 25) {
+                    lines[currentLine] = testLine;
+                } else {
+                    currentLine++;
+                    i--;
+                }
+            }
+            return lines;
+        }
+
+        // Obtener los datos Thymeleaf
+        var cargos = /*[[${cargos}]]*/ [];
+
+        // Procesar cada nodo
+        if (cargos && cargos.length > 0) {
+            cargos.forEach(cargo => {
+                if (cargo.tags && cargo.tags.length > 0) {
+                    cargo.tags = cargo.tags.map(tag => tag.name);
+                } else {
+                    cargo.tags = [];
+                }
+
+                const lines = splitNameIntoLines(cargo.name || "");
+                cargo.name = lines[0] || "";
+                cargo.title = lines[1] || "";
+                cargo.extra = lines[2] || "";
+
+                cargo.style0 = getFontSize(cargo.name);
+                cargo.style1 = getFontSize(cargo.title);
+                cargo.style2 = getFontSize(cargo.extra);
+            });
+        }
+
+        // Crear el organigrama
+        var chart = new OrgChart(document.getElementById("tree"), {
+            template: "disco",
+            nodeBinding: {
+                field_0: "name",
+                field_1: "title",
+                field_2: "extra",
+                style0: "style0",
+                style1: "style1",
+                style2: "style2"
+            },
+            scaleInitial: 0.5,
+            enablePan: true,
+            enableZoom: true,
+            enableEdit: false,
+            nodeMouseClick: OrgChart.action.none,
+            menu: {},
+            enableDragDrop: false,
+            enableSearch: false,
+            showMenuButton: false,
+            tags: {
+                "assistant": { template: "disco" },
+                "subAssistant": { template: "subAssistantTemplate" }
+            },
+            nodes: cargos
+        });
+
+        // Redirección al hacer clic en un nodo
+        chart.on('click', function(sender, args) {
+            var node = args.node;
+            if (node) {
+                window.location.href = '/cargos/adm/details/' + node.id;
+            }
+            return false;
+        });
+    };
+</script>
+
+</body>
+</html>

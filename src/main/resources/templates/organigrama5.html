@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Organigrama</title>
+    <script src="https://balkan.app/js/OrgChart.js"></script>
+    <style>
+        #tree {
+            width: 100%;
+            height: 600px;
+            overflow: auto;
+        }
+        /* Estilos para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            font-family: Arial, sans-serif;
+        }
+        .modal-content h2 {
+            margin: 0 0 15px;
+            color: #87CEEB; /* Celeste para el título */
+            font-size: 1.5em;
+        }
+        .modal-content p {
+            margin: 5px 0;
+            color: #333;
+        }
+        .modal-content p strong {
+            color: #555;
+        }
+        .modal-content .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+        }
+        .modal-content .close:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+<h1>Organigrama de la Empresa</h1>
+<div id="tree"></div>
+
+<!-- Modal para mostrar los detalles -->
+<div id="detailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close">×</span>
+        <h2 id="modalName"></h2>
+        <p><strong>Cargo:</strong> <span id="modalTitle"></span></p>
+        <p><strong>Correo:</strong> <span id="modalEmail"></span></p>
+        <p><strong>Teléfono:</strong> <span id="modalPhone"></span></p>
+        <p><strong>Descripción:</strong> <span id="modalDescription"></span></p>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    window.onload = function () {
+        // Template para "assistant" (rojo, rectángulo, nombre en tres líneas)
+        OrgChart.templates.assistantTemplate = Object.assign({}, OrgChart.templates.ana);
+
+
+        // Obtener los datos inyectados desde el controlador
+        var cargos = [[${cargos}]];
+
+        // Procesar los datos para ajustar el formato de "tags"
+        if (cargos && cargos.length > 0) {
+            cargos.forEach(cargo => {
+                if (cargo.tags && cargo.tags.length > 0) {
+                    cargo.tags = cargo.tags.map(tag => tag.name);
+                } else {
+                    cargo.tags = [];
+                }
+            });
+        }
+
+        // Configuración del organigrama
+        var chart = new OrgChart(document.getElementById("tree"), {
+            template: "ana",
+            nodeBinding: {
+                field_0: "name",
+                field_1: "title"
+            },
+            scaleInitial: 0.5,
+            enablePan: true,
+            enableZoom: true,
+            enableEdit: false,
+            nodeMouseClick: OrgChart.action.none,
+            menu: {},
+            enableDragDrop: false,
+            enableSearch: false, // Mantener el buscador (opcional: cambiar a false para deshabilitarlo)
+            showMenuButton: false,
+            tags: {
+                "assistant": { template: "assistantTemplate" },
+                "subAssistant": { template: "subAssistantTemplate" }
+            },
+            nodes: cargos
+        });
+
+        // Elementos del modal
+        var modal = document.getElementById("detailsModal");
+        var modalName = document.getElementById("modalName");
+        var modalTitle = document.getElementById("modalTitle");
+        var modalEmail = document.getElementById("modalEmail");
+        var modalPhone = document.getElementById("modalPhone");
+        var modalDescription = document.getElementById("modalDescription");
+        var closeModal = document.getElementsByClassName("close")[0];
+
+        // Función para abrir el modal con datos del controlador
+        function openModal(cargoId) {
+            fetch('/api/cargos/' + cargoId)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al cargar los detalles del cargo');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    modalName.textContent = data.name || 'Sin nombre';
+                    modalTitle.textContent = data.title || 'Sin cargo';
+                    modalEmail.textContent = data.email || 'Sin correo';
+                    modalPhone.textContent = data.phone || 'Sin teléfono';
+                    modalDescription.textContent = data.description || 'Sin descripción';
+                    modal.style.display = "flex";
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('No se pudieron cargar los detalles del cargo.');
+                });
+        }
+
+        // Cerrar el modal
+        closeModal.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        // Evento de clic en un nodo
+        chart.on('click', function(sender, args) {
+            var node = args.node;
+            if (node) {
+                openModal(node.id);
+            }
+            return false; // Evitar comportamiento por defecto
+        });
+    };
+</script>
+</body>
+</html>

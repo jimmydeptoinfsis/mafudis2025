@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+
+<!-- Head -->
+<head th:replace="~{base-layout :: head('Gestionar Relaciones Internas')}"></head>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+    }
+</style>
+<body>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br>
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-container mb-3">
+        <div th:replace="~{fragments/_breadcrumbs :: breadcrumbs}"></div>
+    </div>
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span th:text="${relacionInterna.id == null ? 'Agregar nueva relacion interna para el cargo: '+relacionInterna.getOrigen().name : 'Editar relacion interna para el cargo: '+relacionInterna.getOrigen().name}"></span>
+                    </div>
+                    <div class="card-body">
+                        <!--<h5 class="card-title mb-4">
+                            <span th:if="${relacionInterna.id == null}">Nueva Relación Interna</span>
+                            <span th:unless="${relacionInterna.id == null}">Editar Relación Interna</span>
+                        </h5>-->
+
+                        <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <span th:text="${exito}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+
+                        <form th:action="@{/relaciones-internas/adm/save}" th:object="${relacionInterna}" method="post">
+
+                            <input type="hidden" name="fromCargoId" th:value="${fromCargoId}" />
+
+                            <input type="hidden" th:field="*{id}" />
+
+                            <input type="hidden" th:field="*{origen.id}" />
+
+                            <div class="mb-3">
+                                <label for="origen" class="form-label">Cargo Origen</label>
+                                <input type="text" id="origen" class="form-control"
+                                       th:value="*{origen != null ? origen.name : 'No especificado'}" readonly />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="destino" class="form-label">Cargo Destino</label>
+                                <select id="destino" th:field="*{destino.id}" class="form-select"
+                                        th:classappend="${#fields.hasErrors('destino.id')} ? 'is-invalid' : ''">
+                                    <option value="">Seleccione un cargo de destino</option>
+                                    <option th:each="cargo : ${cargosDisponibles}"
+                                            th:value="${cargo.id}"
+                                            th:text="${cargo.name}"
+                                            th:selected="${relacionInterna.destino != null && relacionInterna.destino.id == cargo.id}">
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('destino.id')}" th:errors="*{destino.id}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="tipoRelacion" class="form-label">Tipo de Relación</label>
+                                <select id="tipoRelacion" th:field="*{tipoRelacion}" class="form-select"
+                                        th:classappend="${#fields.hasErrors('tipoRelacion')} ? 'is-invalid' : ''">
+                                    <option value="">Seleccione el tipo de relación</option>
+                                    <option value="Supervisa">Supervisa</option>
+                                    <option value="Coordina">Coordina</option>
+                                    <option value="Asesora">Asesora</option>
+                                    <option value="Reporta">Reporta</option>
+                                    <option value="Apoya">Apoya</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('tipoRelacion')}" th:errors="*{tipoRelacion}"></div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Guardar Relación <Interna></Interna>
+                                </button>
+                                <a th:href="@{${backUrl}}" class="btn btn-secondary me-md-2">
+                                    <i class="fas fa-times me-2"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+
+
+<div class="container">
+    <!-- Unit Details Section -->
+
+</div>
+
+
+
+<!-- Bootstrap JS (for button functionality if needed) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

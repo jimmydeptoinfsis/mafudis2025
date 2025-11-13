@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+
+<head th:replace="~{base-layout :: head('Gestionar Usuarios')}"></head>
+<body>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br>
+    <!-- Breadcrumb -->
+            <div class="breadcrumb-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/dashboard">
+                            <i class="fas fa-home me-1"></i>Inicio
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        Gestionar Usuarios
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-users me-2"></i>
+                        Listado de Usuarios
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                   <!-- <th>ID</th>-->
+                                    <th>Nombre de Usuario</th>
+                                    <th>Email</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Acciones</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="usuario : ${usuarios}">
+                                    <!--<td th:text="${usuario.id}">1</td>-->
+                                    <td th:text="${usuario.username}">admin</td>
+                                    <td th:text="${usuario.email}">admin@example.com</td>
+                                    <td th:text="${usuario.firstName}">Admin</td>
+                                    <td th:text="${usuario.lastName}">User</td>
+                                    <td>
+                                        <a th:href="@{/usuarios/edit/{id}(id=${usuario.id})}" class="btn btn-outline-primary btn-sm" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a th:href="@{/usuarios/delete/{id}(id=${usuario.id})}" class="btn btn-outline-danger btn-sm" title="Eliminar"
+                                           onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <a th:href="@{/usuarios/new}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i> Agregar un Nuevo Usuario
+                        </a>
+                        <a th:href="@{/dashboard}"
+                           class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver al inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+
+
+<div class="container">
+    <!-- Unit Details Section -->
+
+</div>
+
+
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

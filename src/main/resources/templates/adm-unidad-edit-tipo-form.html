@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!-- Head -->
+<head th:replace="~{base-layout :: head('Dashboard')}"></head>
+<style>
+    body {
+        font-family: 'Helvetica', sans-serif;
+    }
+</style>
+<body>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header -->
+<head th:replace="~{base-layout :: header}"></head>
+
+<!-- Sidebar -->
+<aside th:replace="~{base-layout :: sidebar}"></aside>
+<!-- Main Content -->
+<main class="main-content">
+        <br>
+        <br><!-- Breadcrumb -->
+    <div class="breadcrumb-container mb-3">
+        <div th:replace="~{fragments/_breadcrumbs :: breadcrumbs}"></div>
+
+    </div>
+    <!-- Page Content -->
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span th:text="${tipoUnidad.id == null ? 'Agregar nuevo tipo de unidad ' : 'Editar tipo de unidad'}"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-body">
+                            <form th:action="@{/tipos-unidad/adm/save}" th:object="${tipoUnidad}" method="post">
+
+                                <input type="hidden" name="fromUnidadId" th:value="${fromUnidadId}" />
+                                <input type="hidden" th:field="*{id}" />
+
+                                <div class="mb-3">
+                                    <label for="nombre" class="form-label">Nombre del Tipo de Unidad</label>
+                                    <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i> Guardar Tipo de Unidad</button>
+                                    <a th:href="@{${backUrl}}" class="btn btn-secondary">
+                                        <i class="fas fa-times me-2"></i> Cancelar</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer th:replace="~{base-layout :: footer}"></footer>
+<!-- Scripts del template -->
+<th:block th:replace="~{base-layout :: scripts}"></th:block>
+<!-- Scripts adicionales -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

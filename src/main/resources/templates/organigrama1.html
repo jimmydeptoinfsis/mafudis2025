@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Organigrama</title>
+    <script src="https://balkan.app/js/OrgChart.js"></script>
+    <style>
+        #tree {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+<h1>Organigrama de la Empresa</h1>
+<div id="tree"></div>
+
+<script th:inline="javascript">
+    window.onload = function () {
+        var chart = new OrgChart(document.getElementById("tree"), {
+            template: "ana",
+            nodeBinding: {
+                field_0: "name",
+                field_1: "title"
+            },
+            scaleInitial: 0.5,
+            nodes: [[${cargos}]] // Thymeleaf convierte la lista a JS
+        });
+    };
+</script>
+</body>
+</html>

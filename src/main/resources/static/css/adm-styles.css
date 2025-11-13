@@ -1,0 +1,483 @@
+:root {
+    --umss-blue: #003f7f;
+    --umss-red: #dc3545;
+    --umss-white: #ffffff;
+    --umss-light-blue: #e8f2ff;
+    --umss-dark-blue: #002856;
+    --sidebar-width: 280px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, var(--umss-blue) 0%, var(--umss-dark-blue) 100%);
+    color: white;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    height: 70px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 20px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Menu Toggle Button */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.menu-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    width: 45px;
+    height: 45px;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--umss-blue);
+    font-size: 18px;
+}
+
+.university-info h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.university-info p {
+    font-size: 0.85rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.user-menu:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--umss-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.user-info {
+    display: block;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: var(--sidebar-width);
+    height: calc(100vh - 70px);
+    background: white;
+    border-right: 1px solid #e9ecef;
+    overflow-y: auto;
+    z-index: 1020;
+    transition: all 0.3s ease;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1010;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    background: var(--umss-light-blue);
+    position: relative;
+}
+
+.sidebar-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--umss-blue);
+    margin: 0;
+}
+
+.sidebar-close {
+    display: none;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: var(--umss-blue);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-close:hover {
+    background: rgba(0, 63, 127, 0.1);
+}
+
+.nav-menu {
+    padding: 15px 0;
+}
+
+.nav-section {
+    margin-bottom: 25px;
+}
+
+.nav-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 20px 10px;
+    margin-bottom: 10px;
+}
+
+.nav-item {
+    margin: 2px 10px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: #495057;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    background: var(--umss-light-blue);
+    color: var(--umss-blue);
+    transform: translateX(3px);
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, var(--umss-blue), var(--umss-dark-blue));
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 63, 127, 0.3);
+}
+
+.nav-link i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: var(--sidebar-width);
+    margin-top: 70px;
+    padding: 30px;
+    min-height: calc(100vh - 70px);
+    transition: margin-left 0.3s ease;
+}
+
+/* Breadcrumb */
+.breadcrumb-container {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.breadcrumb {
+    margin: 0;
+    background: none;
+    padding: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--umss-blue);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: var(--umss-red);
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--umss-blue), var(--umss-dark-blue));
+    color: white;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 15px 20px;
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--umss-blue), var(--umss-dark-blue));
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 63, 127, 0.4);
+}
+
+.btn-danger {
+    background: var(--umss-red);
+    border: none;
+    border-radius: 8px;
+}
+
+/* Tables */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background: var(--umss-light-blue);
+    color: var(--umss-dark-blue);
+    font-weight: 600;
+    border: none;
+}
+
+.table tbody tr:hover {
+    background: rgba(0, 63, 127, 0.05);
+}
+
+/* Alerts */
+.alert-success {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 1px solid #b8dacd;
+    color: #155724;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+    border: 1px solid #f1b0b7;
+    color: #721c24;
+}
+
+/* Footer */
+.footer {
+    background: var(--umss-dark-blue);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: 50px;
+}
+
+/* Custom scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--umss-blue);
+    border-radius: 3px;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .university-info h1 {
+        font-size: 1.2rem;
+    }
+
+    .university-info p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Show menu toggle button */
+    .menu-toggle {
+        display: block;
+    }
+
+    /* Hide sidebar by default */
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: 1025;
+    }
+
+    /* Show sidebar when active */
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    /* Show overlay when sidebar is active */
+    .sidebar-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Show close button in sidebar */
+    .sidebar-close {
+        display: block;
+    }
+
+    /* Adjust main content */
+    .main-content {
+        margin-left: 0;
+        padding: 20px 15px;
+    }
+
+    /* Adjust header */
+    .header-content {
+        padding: 0 15px;
+    }
+
+    .university-info h1 {
+        font-size: 1.1rem;
+    }
+
+    .university-info p {
+        display: none;
+    }
+
+    /* Hide user info text on very small screens */
+    .user-info {
+        display: none;
+    }
+
+    /* Adjust breadcrumb */
+    .breadcrumb-container {
+        padding: 12px 15px;
+        margin-bottom: 20px;
+    }
+
+    /* Adjust cards */
+    .card-header {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        padding: 0 10px;
+    }
+
+    .main-content {
+        padding: 15px 10px;
+    }
+
+    .logo {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+
+    .university-info h1 {
+        font-size: 1rem;
+    }
+
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    .sidebar {
+        width: 85%;
+    }
+}
