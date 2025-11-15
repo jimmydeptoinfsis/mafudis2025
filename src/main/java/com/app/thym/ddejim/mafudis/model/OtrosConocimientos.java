@@ -17,7 +17,7 @@ public class OtrosConocimientos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     @NotBlank(message = "La descripción es obligatoria")
     private String descripcion;
 
